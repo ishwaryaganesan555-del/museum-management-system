@@ -29,28 +29,44 @@
         .payment-amount{color:#1d4ed8; font-weight:bold; font-size:15px}
         .payment-status{color:#047857; font-weight:bold}
         
+        .header-flex { display: flex; justify-content: space-between; align-items: center; }
+        
         /* 📱 Mobile responsive design */
         @media (max-width: 768px) {
-            .card { width: 85%; max-width: 380px; padding: 15px; margin: 10px auto; }
-            .title { font-size: 18px; }
-            input { padding: 10px; font-size: 14px; }
-            button { padding: 10px; font-size: 13px; }
-            .result { padding: 12px; font-size: 12px; }
-            #preview-box { max-width: 180px; height: auto; }
+            body { padding: 10px; }
+            .card { width: 100%; max-width: 100%; padding: 16px 12px; margin: 0 auto; border-radius: 12px; }
+            .header-flex { flex-direction: column; align-items: flex-start; }
+            h3 { margin: 0 0 12px 0 !important; font-size: 20px; }
+            input { width: 100%; padding: 10px; font-size: 14px; margin: 8px 0; box-sizing: border-box; }
+            button { width: 100%; padding: 12px; font-size: 13px; margin-top: 8px; box-sizing: border-box; }
+            #fileBtn { width: 100%; }
+            #manualBtn { width: 100%; }
+            .result { padding: 12px; font-size: 12px; margin-top: 12px; }
+            #preview-box { max-width: 100%; height: auto; margin: 8px 0; }
+            #preview { max-width: 100%; height: auto; }
+            label { font-size: 13px; display: block; margin-bottom: 6px; }
+            .payment-section { padding: 12px; font-size: 12px; }
         }
         
         @media (max-width: 480px) {
-            body { padding: 0; margin: 0; display: flex; align-items: stretch; justify-content: stretch; min-height: 100vh; }
-            .card { width: 85%; max-width: 340px; padding: 10px; margin: 6px auto; border-radius: 8px; }
-            .title { font-size: 16px; margin-bottom: 12px; }
-            .subtitle { font-size: 12px; }
-            input { padding: 8px; font-size: 14px; margin: 6px 0; }
-            button { padding: 8px; font-size: 12px; margin-top: 8px; }
-            .result { padding: 10px; font-size: 11px; margin-top: 10px; }
-            label { font-size: 12px; }
+            body { padding: 8px; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+            .card { width: 100%; max-width: 100%; padding: 12px 10px; margin: 0; border-radius: 10px; }
+            .header-flex { flex-direction: column; align-items: flex-start; gap: 8px; }
+            h3 { margin: 0 !important; font-size: 18px; }
+            .subtitle { font-size: 11px; margin: 4px 0; }
+            input { width: 100%; padding: 8px; font-size: 13px; margin: 6px 0; border: 1px solid #ccc; box-sizing: border-box; }
+            button { width: 100%; padding: 10px 8px; font-size: 12px; margin-top: 6px; box-sizing: border-box; cursor: pointer; }
+            #fileBtn { margin-top: 6px; }
+            #manualBtn { margin-top: 6px; }
+            .result { padding: 10px; font-size: 11px; margin-top: 10px; border-radius: 6px; }
+            label { font-size: 12px; display: block; margin: 8px 0 4px 0; }
             .back-btn { padding: 6px 10px; font-size: 11px; }
             #backBtn { display: none; }
-            #preview-box { max-width: 140px; height: auto; margin: 8px auto; }
+            #preview-box { max-width: 100%; height: auto; margin: 6px 0; }
+            #preview { max-width: 100%; height: auto; margin-top: 6px; }
+            .payment-section { padding: 10px; font-size: 11px; margin-top: 8px; }
+            .payment-section b { display: block; margin-bottom: 4px; }
+            .payment-amount { font-size: 14px; display: block; margin: 4px 0; }
         }
     </style>
     <!-- jsQR (image decoder for uploaded QR images) -->
@@ -58,8 +74,8 @@
 </head>
 <body>
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3>🔍 Scan Ticket</h3>
+        <div class="header-flex">
+            <h3 style="margin:0">🔍 Scan Ticket</h3>
             <button id="backBtn" class="btn" onclick="history.back()" style="background:#eee;color:#222;padding:8px 10px;border-radius:6px">◀ Back</button>
         </div>
 
@@ -67,16 +83,16 @@
         <div id="result" class="result" style="display:none"></div>
 
         <div style="margin-top:12px">
-            <label>Upload QR image or paste ticket payload / code</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-                <input id="fileInput" type="file" accept="image/*,application/pdf" style="flex:0 0 260px;" />
-                <button id="fileBtn" style="padding:8px 12px">Upload & Verify</button>
+            <label style="margin-bottom:8px; display:block;">Upload QR image or paste ticket payload / code</label>
+            <div style="display:flex;gap:8px;align-items:stretch;margin-top:6px;flex-wrap:wrap">
+                <input id="fileInput" type="file" accept="image/*,application/pdf" style="flex:1 1 100%; min-width:120px;" />
+                <button id="fileBtn" style="padding:10px 12px;flex:1 1 auto;min-width:100px;white-space:nowrap">Upload & Verify</button>
             </div>
             <img id="preview" style="display:none; max-width:160px; margin-top:8px; border-radius:6px; border:1px solid #eee" />
 
             <div style="margin-top:10px">
-                <input id="manual" style="width:100%; padding:8px; margin-top:6px;" placeholder="Paste ticket code or full QR content here" />
-                <button id="manualBtn" style="margin-top:8px; padding:8px 12px;">Verify</button>
+                <input id="manual" style="width:100%; padding:8px; margin-top:6px; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;" placeholder="Paste ticket code or full QR content here" />
+                <button id="manualBtn" style="margin-top:8px; padding:10px 12px; width:100%; box-sizing:border-box;">Verify</button>
             </div>
         </div>
     </div>
