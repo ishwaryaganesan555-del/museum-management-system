@@ -105,13 +105,36 @@ def admin_required(f):
     return decorated_function
 
 # ----------------- Database Setup -----------------
-db = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="Ishwarya@123",
-    database="museum_db"
-)
-cursor = db.cursor()
+db = None
+cursor = None
+
+def get_db():
+    global db, cursor
+    if db is None:
+        try:
+            db = pymysql.connect(
+                host=os.getenv("DB_HOST", "localhost"),
+                user=os.getenv("DB_USER", "root"),
+                password=os.getenv("DB_PASSWORD", "Ishwarya@123"),
+                database=os.getenv("DB_NAME", "museum_db")
+            )
+            cursor = db.cursor()
+        except Exception as e:
+            print(f"[WARNING] Database connection failed: {e}")
+            print(f"[INFO] Configure database via environment variables:")
+            print(f"      DB_HOST={os.getenv('DB_HOST', 'not set')}")
+            print(f"      DB_USER={os.getenv('DB_USER', 'not set')}")
+            print(f"      DB_PASSWORD=***")
+            print(f"      DB_NAME={os.getenv('DB_NAME', 'not set')}")
+            db = None
+            cursor = None
+    return db, cursor
+
+# Try to initialize database on startup
+try:
+    get_db()
+except:
+    pass
 
 # ----------------- Flask-Mail Setup -----------------
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
