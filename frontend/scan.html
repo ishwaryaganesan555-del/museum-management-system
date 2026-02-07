@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Scan & Verify Ticket</title>
+    <style>
+        body{font-family: Arial, sans-serif; background: linear-gradient(rgba(243,232,255,0.12), rgba(240,240,250,0.12)), url('/static/images/verify.png') center/cover fixed no-repeat; display:flex; align-items:center; justify-content:center; min-height:100vh} 
+        /* mild grey + lavender accents */
+        .card{background: rgba(255,255,255,0.86); padding:20px; border-radius:18px; box-shadow: 0 0 12px rgba(147,51,234,0.15); width:660px; border: 1px solid rgba(147,51,234,0.1); transition: all 0.35s ease; cursor:pointer; will-change: transform}
+        :root{
+            --lavender-100: #F3E8FF;
+            --lavender-200: #E9D9FF;
+            --mild-grey: #E6E9EE;
+            --muted: #6b4b9b;
+        }
+        .card:hover{
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 0 20px rgba(147,51,234,0.3), 0 0 40px rgba(147,51,234,0.15);
+        }
+        .subtitle{color:var(--muted); margin-top:6px; margin-bottom:8px}
+        .result{margin-top:12px;padding:12px;border-radius:8px;background:linear-gradient(180deg,var(--lavender-100),#fff);color:#2b0a52; border:1px solid var(--mild-grey)}
+        /* compact preview box styled with lavender and mild grey */
+        #preview-box{ display:none; max-width:100%; border-radius:6px; background:linear-gradient(180deg,var(--lavender-100),#fff); padding:12px; border:1px solid var(--mild-grey); min-height:120px; }
+        .preview-help{ font-size:12px; color:var(--muted); margin-top:6px }
+        label{font-weight:600}
+        .payment-section{background:rgba(186,85,211,0.12); padding:10px;border-radius:6px; margin-top:10px; border-left:3px solid #9333ea}
+        .payment-section b{color:#6b0dad; font-weight:bold}
+        .payment-amount{color:#1d4ed8; font-weight:bold; font-size:15px}
+        .payment-status{color:#047857; font-weight:bold}
+        
+        /* 📱 Mobile responsive design */
+        @media (max-width: 768px) {
+            .card { width: calc(100% - 40px); max-width: 100%; padding: 15px; margin: 10px auto; }
+            .title { font-size: 18px; }
+            input { padding: 10px; font-size: 14px; }
+            button { padding: 10px; font-size: 13px; }
+            .result { padding: 12px; font-size: 12px; }
+            #preview-box { max-width: 180px; height: auto; }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 0; margin: 0; display: flex; align-items: stretch; justify-content: stretch; min-height: 100vh; }
+            .card { width: calc(100% - 20px); max-width: 100%; padding: 10px; margin: 6px auto; border-radius: 8px; }
+            .title { font-size: 16px; margin-bottom: 12px; }
+            .subtitle { font-size: 12px; }
+            input { padding: 8px; font-size: 14px; margin: 6px 0; }
+            button { padding: 8px; font-size: 12px; margin-top: 8px; }
+            .result { padding: 10px; font-size: 11px; margin-top: 10px; }
+            label { font-size: 12px; }
+            .back-btn { padding: 6px 10px; font-size: 11px; }
+            #backBtn { display: none; }
+            #preview-box { max-width: 140px; height: auto; margin: 8px auto; }
+        }
+    </style>
+    <!-- jsQR (image decoder for uploaded QR images) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3>🔍 Scan Ticket</h3>
+            <button id="backBtn" class="btn" onclick="history.back()" style="background:#eee;color:#222;padding:8px 10px;border-radius:6px">◀ Back</button>
+        </div>
+
+        <div id="preview-box"></div>
+        <div id="result" class="result" style="display:none"></div>
+
+        <div style="margin-top:12px">
+            <label>Upload QR image or paste ticket payload / code</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                <input id="fileInput" type="file" accept="image/*,application/pdf" style="flex:0 0 260px;" />
+                <button id="fileBtn" style="padding:8px 12px">Upload & Verify</button>
+            </div>
+            <img id="preview" style="display:none; max-width:160px; margin-top:8px; border-radius:6px; border:1px solid #eee" />
+
+            <div style="margin-top:10px">
+                <input id="manual" style="width:100%; padding:8px; margin-top:6px;" placeholder="Paste ticket code or full QR content here" />
+                <button id="manualBtn" style="margin-top:8px; padding:8px 12px;">Verify</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let resultEl = null;
+
+    function verifyPayload(payload){
+        if(resultEl){ resultEl.style.display = 'block'; resultEl.innerHTML = 'Verifying...'; }
+        else { console.warn('resultEl not ready'); }
+        fetch('/api/verify_ticket', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ data: payload, mark_used: true })
+        }).then(r => r.json())
+        .then(j => {
+            if(j.success){
+                const paymentAmount = j.ticket.total_price ? `₹${j.ticket.total_price}` : 'N/A';
+                const paymentMethod = (j.ticket.payment_method || 'MANUAL_UPI').toUpperCase().replace(/_/g, ' ');
+                const paymentStatus = (j.ticket.payment_status || 'COMPLETED').toUpperCase();
+                if(resultEl) resultEl.innerHTML = `<b style="color:green">✅ Entry allowed</b><br>Ticket: ${j.ticket.code || j.ticket.id} <br>Name: ${j.ticket.name} <br>Museum: ${j.ticket.museum} <br>Date: ${j.ticket.date} <br>Time: ${j.ticket.time}<div class="payment-section" style="margin-top:10px"><b>Payment Details:</b><br><b>Total Amount:</b> <span class="payment-amount">${paymentAmount}</span><br><b>Method:</b> ${paymentMethod}<br><b>Status:</b> <span class="payment-status">✅ ${paymentStatus}</span></div>`;
+            } else {
+                if(resultEl) resultEl.innerHTML = `<b style="color:red">❌ Denied</b><br>${j.message || 'Invalid'} `;
+            }
+        }).catch(err => { if(resultEl) resultEl.innerHTML = `<b style="color:red">❌ Error</b><br>${err}`; });
+    }
+
+    // Image decode using jsQR
+    function decodeImageFile(file){
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e){
+                const img = new Image();
+                img.onload = function(){
+                    // draw on canvas
+                    const canvas = document.createElement('canvas');
+                    const maxSize = 1000;
+                    let w = img.width, h = img.height;
+                    if(w > maxSize || h > maxSize){
+                        const ratio = Math.min(maxSize/w, maxSize/h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    try{
+                        const imageData = ctx.getImageData(0,0,w,h);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if(code && code.data){
+                            resolve(code.data);
+                        } else {
+                            resolve(null);
+                        }
+                    }catch(err){
+                        reject(err);
+                    }
+                };
+                img.onerror = function(){ reject(new Error('Invalid image')); };
+                img.src = e.target.result;
+            };
+            reader.onerror = function(){ reject(new Error('File read error')); };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // DOM ready
+    document.addEventListener('DOMContentLoaded', function(){
+        // assign result element reference
+        resultEl = document.getElementById('result');
+
+        // Manual verify button
+        document.getElementById('manualBtn').addEventListener('click', function(){
+            const v = document.getElementById('manual').value.trim();
+            if(!v) return alert('Paste code or payload');
+            verifyPayload(v);
+        });
+
+        // File upload verify
+        const fileInput = document.getElementById('fileInput');
+        const fileBtn = document.getElementById('fileBtn');
+        if(fileBtn){
+            fileBtn.addEventListener('click', async function(){
+                const f = fileInput.files && fileInput.files[0];
+                if(!f) return alert('Please choose an image to upload');
+                // PDF not supported
+                if(f.type === 'application/pdf'){
+                    resultEl.innerHTML = 'PDF files are not supported. Please upload an image screenshot (PNG/JPG) of the QR.';
+                    return;
+                }
+                resultEl.innerHTML = 'Decoding image...';
+                // show preview
+                try{
+                    const preview = document.getElementById('preview');
+                    const previewBox = document.getElementById('preview-box');
+                    if(preview && f.type.startsWith('image/')){
+                        preview.src = URL.createObjectURL(f);
+                        preview.style.display = 'block';
+                        if(previewBox){ previewBox.innerHTML = ''; previewBox.appendChild(preview); previewBox.style.display = 'block'; }
+                    } else if(preview){ preview.style.display = 'none'; preview.src = ''; if(previewBox){ previewBox.style.display = 'none'; previewBox.innerHTML = ''; } }
+                }catch(e){ /* ignore */ }
+
+                try{
+                    const decoded = await decodeImageFile(f);
+                    if(decoded){
+                        verifyPayload(decoded);
+                    } else {
+                        resultEl.innerHTML = 'No QR code found in image.';
+                    }
+                }catch(err){
+                    resultEl.innerHTML = 'Image decode error: ' + err;
+                }
+            });
+
+            // also allow auto-verify on file selection (optional)
+            fileInput.addEventListener('change', function(){
+                if(fileInput.files && fileInput.files[0]){
+                    // show preview immediately
+                    const f = fileInput.files[0];
+                    const preview = document.getElementById('preview');
+                    if(preview && f.type.startsWith('image/')){ preview.src = URL.createObjectURL(f); preview.style.display = 'block'; }
+                    fileBtn.click();
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

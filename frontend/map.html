@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Museum Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #fff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .header-btn {
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .header-btn:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            background: #cc0000;
+            box-shadow: 0 2px 4px rgba(255,68,68,0.3);
+        }
+        .content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 360px;
+            background: white;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .place-info {
+            padding: 20px;
+        }
+        .place-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .place-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .place-rating {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        .rating-star {
+            color: #ffc107;
+            margin-right: 4px;
+        }
+        .place-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .action-btn {
+            padding: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        .info-section {
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #333;
+        }
+        #map {
+            flex: 1;
+            background: #e0e0e0;
+            min-height: 400px;
+        }
+        .leaflet-popup-content {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+        
+        /* 📱 Mobile responsive design */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+                border-bottom: 1px solid #e0e0e0;
+                box-shadow: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            #map {
+                min-height: 60vh;
+                flex: 1;
+            }
+        }
+        
+        /* 📱 Extra small devices - hide sidebar, show map full screen */
+        @media (max-width: 480px) {
+            .sidebar {
+                max-height: 50vh;
+            }
+            #map {
+                min-height: 50vh;
+            }
+            .place-image {
+                height: 150px;
+            }
+            .place-title {
+                font-size: 18px;
+            }
+            .place-info {
+                padding: 15px;
+            }
+            .logout-btn, .header-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">Museum Location</div>
+            <div class="header-buttons">
+                <button class="header-btn" onclick="goHome()">🏠 Home</button>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="sidebar">
+                <div class="place-info">
+                    <img id="img" class="place-image" alt="Museum">
+                    <div class="place-title" id="title"></div>
+                    <div class="place-rating">
+                        <span class="rating-star" id="stars">★★★★★</span>
+                        <span id="reviews">(256 reviews)</span>
+                    </div>
+                    <div class="place-description" id="description">
+                        A world-class museum featuring historical artifacts and cultural exhibitions.
+                    </div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Address</div>
+                    <div class="info-value" id="address">Not available</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value" id="phone">Not available</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Hours</div>
+                    <div class="info-value" id="hours">09:00 AM - 06:00 PM</div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function goHome() {
+            window.location.href = '/home';
+        }
+
+        function logout() {
+            // Clear session data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            window.location.href = '/login';
+        }
+
+        function generateRandomPhone() {
+            const firstDigit = Math.floor(Math.random() * 4) + 6; // 6-9
+            const remainingDigits = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+            return `+91 ${firstDigit}${remainingDigits}`;
+        }
+
+        function generateRandomRating() {
+            return Math.floor(Math.random() * 5) + 1;
+        }
+
+        function generateRandomReviewCount() {
+            return Math.floor(Math.random() * 500) + 10;
+        }
+
+        const p = new URLSearchParams(window.location.search);
+        const name = p.get("name") || "Museum";
+        const lat = parseFloat(p.get("lat")) || 11.5271;
+        const lng = parseFloat(p.get("lng")) || 79.7331;
+        const img = p.get("img");
+        const address = p.get("address") || "Museum Location";
+        const phone = p.get("phone") || generateRandomPhone();
+        const description = p.get("description") || "A world-class museum featuring historical artifacts and cultural exhibitions.";
+        const rating = generateRandomRating();
+        const reviewCount = generateRandomReviewCount();
+
+        document.getElementById("title").innerText = name;
+        document.getElementById("img").src = img || "https://via.placeholder.com/360x200?text=Museum";
+        document.getElementById("address").innerText = address;
+        document.getElementById("phone").innerText = phone;
+        document.getElementById("description").innerText = description;
+        document.getElementById("stars").innerText = "★".repeat(rating) + "☆".repeat(5 - rating);
+        document.getElementById("reviews").innerText = `(${reviewCount} reviews)`;
+
+        // Initialize Leaflet map
+        setTimeout(function() {
+            const map = L.map('map').setView([lat, lng], 15);
+            
+            // Force map to resize after initialization
+            window.addEventListener('resize', function() {
+                map.invalidateSize();
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add marker with custom popup
+            L.marker([lat, lng], {
+                title: name
+            }).addTo(map).bindPopup(`
+                <div style="font-weight: 500;">${name}</div>
+                <div style="font-size: 12px; color: #666;">${address}</div>
+            `).openPopup();
+        }, 100);
+    </script>
+</body>
+</html>
+
+    <script>
+    // Hide logout buttons on small screens
+    (function(){
+        const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+        function update(){
+            const hide = window.innerWidth <= 480;
+            document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+        }
+        update();
+        window.addEventListener('resize', update);
+    })();
+    </script>

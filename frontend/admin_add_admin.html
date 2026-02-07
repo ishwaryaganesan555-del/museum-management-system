@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Admin Management</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>👨‍💼</text></svg>" />
+
+<style>
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial;
+    background: linear-gradient(135deg, #f2f0f8, #e6e4f0);
+}
+
+/* ===== HEADER ===== */
+header{
+    background: linear-gradient(to right, #b497ff, #d6ccff);
+    padding:18px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    color:#3a2c6d;
+    position:relative;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.nav-left, .nav-right{
+    position:absolute;
+    top:15px;
+}
+
+.nav-left{ left:15px; }
+.nav-right{ right:15px; }
+
+.nav-btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:6px;
+    background:#6a5acd;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    margin-left:5px;
+}
+.nav-btn:hover{ background:#4b3cbf; }
+
+/* ===== CONTAINER ===== */
+.container{
+    width:90%;
+    max-width:1000px;
+    margin:30px auto;
+    background:white;
+    border-radius:14px;
+    padding:25px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+
+/* ===== FORM ===== */
+.form-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+input{
+    padding:10px;
+    border-radius:6px;
+    border:2px solid #b497ff;
+    outline:none;
+}
+
+input:focus{
+    border-color:#6a5acd;
+}
+
+.add-btn{
+    padding:12px;
+    background:#6a5acd;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.add-btn:hover{ background:#4b3cbf; }
+
+/* ===== TABLE ===== */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th, td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#dcd6ff;
+    color:#3a2c6d;
+}
+
+tr:hover{
+    background:#f5f3ff;
+}
+
+.delete-btn{
+    background:#ff5c5c;
+    border:none;
+    color:white;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+}
+.delete-btn:hover{ background:#e64545; }
+
+.empty{
+    text-align:center;
+    padding:20px;
+    color:gray;
+}
+
+/* ===== DELETE FORM ===== */
+.delete-form-section{
+    background:#fff5f5;
+    padding:20px;
+    border-radius:8px;
+    margin-top:30px;
+    border:2px dashed #ff5c5c;
+}
+
+.delete-form-section h3{
+    color:#e64545;
+    margin-top:0;
+}
+
+.delete-form-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.delete-btn-submit{
+    padding:12px;
+    background:#ff5c5c;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.delete-btn-submit:hover{ background:#e64545; }
+
+.delete-warning{
+    background:#ffe6e6;
+    padding:12px;
+    border-radius:6px;
+    color:#c33;
+    margin-bottom:16px;
+    font-weight:600;
+}
+
+/* ===== FACE CAPTURE ===== */
+.face-section{
+    background:#f9f7ff;
+    padding:16px;
+    border-radius:8px;
+    margin-top:16px;
+    border:2px dashed #b497ff;
+}
+
+.face-row{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+video, canvas{
+    width:280px;
+    height:210px;
+    border-radius:6px;
+    border:1px solid #ddd;
+    background:#fff;
+}
+
+.face-controls{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.face-msg{
+    font-size:0.9em;
+    margin-top:8px;
+    font-weight:600;
+}
+
+#camera_container {
+    transition: all 0.3s ease;
+}
+
+@media (max-width:768px){
+    .face-row{ flex-direction:column; }
+    video, canvas{ width:100%; }
+    button { padding: 8px 12px; font-size: 12px; }
+    input { width: calc(100% - 20px); }
+}
+
+@media (max-width:480px){
+    .face-row{ flex-direction:column; }
+    video, canvas{ width:100%; height:auto; }
+    button { padding: 6px 10px; font-size: 11px; }
+    input { width: calc(100% - 16px); padding: 6px; }
+    header { font-size: 16px; padding: 8px; }
+    table { font-size: 11px; }
+    table th, table td { padding: 6px; }
+    .nav-btn { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    👨‍💼 Admin Management
+
+    <div class="nav-left">
+        <button class="nav-btn" onclick="goBack()">⬅ Back</button>
+    </div>
+
+    <div class="nav-right">
+        <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+</header>
+
+<div class="container">
+
+    <h3>Add New Admin</h3>
+
+    <div class="form-grid">
+        <input type="text" id="name" placeholder="Admin Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+    </div>
+
+    <!-- Face upload removed -->
+
+    <button class="add-btn" onclick="addAdmin()">➕ Add Admin</button>
+
+    <div class="delete-form-section">
+        <h3>🗑️ Delete Admin (Manual)</h3>
+        
+        <div class="delete-warning">
+            ⚠️ WARNING: Deleting an admin is permanent. Enter the admin details carefully to confirm deletion.
+        </div>
+
+        <div class="delete-form-grid">
+            <input type="text" id="deleteEmail" placeholder="Admin Email (required)">
+            <input type="text" id="deleteName" placeholder="Admin Name (optional)">
+            <input type="text" id="deleteUsername" placeholder="Admin Username (optional)">
+        </div>
+
+        <button class="delete-btn-submit" onclick="deleteAdminManual()">🗑️ Delete Admin</button>
+    </div>
+
+    <h3 style="margin-top:30px;">Admin List</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="adminTable"></tbody>
+    </table>
+
+</div>
+
+<script>
+// Face capture removed — feature disabled
+// Hide logout buttons on small screens
+(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+// Render Admins from API
+async function renderAdmins(){
+    const table = document.getElementById("adminTable");
+    table.innerHTML = "";
+
+    try {
+        const response = await fetch('/api/admins');
+        const data = await response.json();
+        
+        if(!data.success || data.admins.length === 0){
+            table.innerHTML = `<tr><td colspan="5" class="empty">No admins added yet</td></tr>`;
+            return;
+        }
+
+        data.admins.forEach((a, index)=>{
+            const row = `
+                <tr>
+                    <td>${index+1}</td>
+                    <td>${a.name}</td>
+                    <td>${a.email}</td>
+                    <td>${a.username}</td>
+                    <td><span style="color:#999;">View in delete form</span></td>
+                </tr>
+            `;
+            table.innerHTML += row;
+        });
+    } catch(error) {
+        console.error("Error fetching admins:", error);
+        table.innerHTML = `<tr><td colspan="5" class="empty">Error loading admins</td></tr>`;
+    }
+}
+
+// Add Admin via API
+async function addAdmin(){
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if(!name || !email || !username || !password){
+        alert("❌ Please fill all fields");
+        return;
+    }
+
+    try {
+        // Create FormData to send both JSON and file (face image)
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('username', username);
+        formData.append('password', password);
+        
+        // face image removed — not sent to server
+
+        const response = await fetch('/api/add_admin', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if(data.success) {
+            alert("✅ Admin added successfully!");
+            document.getElementById("name").value="";
+            document.getElementById("email").value="";
+            document.getElementById("username").value="";
+            document.getElementById("password").value="";
+            capturedFaceData = null;
+            const facePreviewEl = document.getElementById("face_preview");
+            if(facePreviewEl){
+                facePreviewEl.style.display = "none";
+            }
+            renderAdmins();
+        } else {
+            alert("❌ " + data.message);
+        }
+    } catch(error) {
+        console.error("Error:", error);
+        alert("❌ Error adding admin");
+    }
+}
+
+// Delete Admin via API
+async function deleteAdmin(adminId){
+    if(!confirm("❓ Delete this admin?")){
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/delete_admin/${adminId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+        
+        if(data.success) {
+            alert("✅ Admin deleted successfully!");
+            renderAdmins();
+        } else {
+            alert("❌ " + data.message);
+        }
+    } catch(error) {
+        console.error("Error:", error);
+        alert("❌ Error deleting admin");
+    }
+}
+
+// Delete Admin Manually by Email
+async function deleteAdminManual(){
+    const email = document.getElementById('deleteEmail').value.trim();
+    const name = document.getElementById('deleteName').value.trim();
+    const username = document.getElementById('deleteUsername').value.trim();
+
+    // Validate email is provided
+    if(!email){
+        alert('⚠️ Email is required to delete an admin');
+        return;
+    }
+
+    // Create confirmation message with admin details
+    let confirmMsg = `🗑️ You are about to DELETE this admin:\n\nEmail: ${email}`;
+    if(name) confirmMsg += `\nName: ${name}`;
+    if(username) confirmMsg += `\nUsername: ${username}`;
+    confirmMsg += `\n\nThis action is PERMANENT and cannot be undone.\n\nAre you absolutely sure?`;
+
+    if(!confirm(confirmMsg)){
+        return;
+    }
+
+    try {
+        const deleteData = {
+            email: email
+        };
+        if(name) deleteData.name = name;
+        if(username) deleteData.username = username;
+
+        const response = await fetch('/api/delete_admin_by_email', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(deleteData)
+        });
+
+        const data = await response.json();
+        
+        if(data.success) {
+            alert('✅ Admin deleted successfully!');
+            // Clear form
+            document.getElementById('deleteEmail').value = '';
+            document.getElementById('deleteName').value = '';
+            document.getElementById('deleteUsername').value = '';
+            // Refresh admin list
+            renderAdmins();
+        } else {
+            alert('❌ Error: ' + (data.message || data.error || 'Failed to delete admin'));
+        }
+    } catch(error) {
+        console.error('Delete error:', error);
+        alert('❌ Error deleting admin: ' + error.message);
+    }
+}
+
+// Navigation
+function goBack(){
+    window.location.href="/admin";
+}
+
+function logout(){
+    window.location.href="/logout";
+}
+
+// Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+    renderAdmins();
+});
+</script>
+
+</body>
+</html>

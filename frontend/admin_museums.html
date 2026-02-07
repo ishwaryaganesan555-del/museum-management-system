@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Tamil Nadu Museums</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏛️</text></svg>" />
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #e8e8e8, #d3d3d3);
+            text-align: center;
+            color: #6b4fa3;
+        }
+
+        header {
+            background: #d0c5d9;
+            color: #6b4fa3;
+            padding: 15px;
+            font-size: 22px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(186, 85, 211, 0.3);
+            border-bottom: 2px solid #ba55d3;
+        }
+
+        .top {
+            margin: 15px;
+        }
+
+        input, select {
+            padding: 8px;
+            width: 220px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 2px solid #ba55d3;
+            background-color: #f5f0f8;
+            color: #6b4fa3;
+        }
+
+        input::placeholder {
+            color: #9370db;
+        }
+
+        #museums {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background: #f5f0f8;
+            color: #6b4fa3;
+            width: 260px;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(186, 85, 211, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #ba55d3;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(186, 85, 211, 0.5);
+            background: #e8dff5;
+        }
+
+        .card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ba55d3;
+        }
+
+        button {
+            margin: 4px;
+            padding: 7px 12px;
+            border: none;
+            background: #ba55d3;
+            color: #555555;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        button:hover {
+            background: #9370db;
+            color: #f5f0f8;
+        }
+
+        .back {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 14px;
+            background: #ba55d3;
+            color: #555555;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back:hover {
+            background: #9370db;
+            color: #f5f0f8;
+        }
+        
+        /* 📱 Mobile responsive design */
+        @media (max-width: 768px) {
+            header { font-size: 18px; padding: 12px; }
+            input, select { width: calc(100% - 20px); padding: 8px; font-size: 13px; }
+            .gallery { grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px; }
+            .card { width: 100%; }
+            .card img { height: 120px; }
+            button { padding: 8px 12px; font-size: 12px; }
+        }
+        
+        @media (max-width: 480px) {
+            header { font-size: 16px; padding: 8px; }
+            input, select { width: calc(100% - 16px); padding: 6px; font-size: 13px; }
+            .gallery { grid-template-columns: 1fr; gap: 6px; margin: 6px; }
+            .card { width: 100%; margin: 4px 0; padding: 8px; }
+            .card img { height: 100px; }
+            button { padding: 6px 10px; font-size: 11px; }
+            .back { padding: 6px 10px; font-size: 11px; display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        🏛️ Tamil Nadu Museums Directory
+        <button class="back" onclick="goBack()">Back</button>
+    </header>
+
+    <div class="top">
+        <input type="text" id="search" placeholder="Search museum..." onkeyup="renderMuseums()">
+        <select id="district" onchange="renderMuseums()">
+            <option value="all">All Districts</option>
+        </select>
+    </div>
+
+    <div id="museums"></div>
+
+    <script>
+        // ====== MUSEUM DATA ======
+        const museums = [
+            {name:"Vallal Alagappar Museum", district:"Sivagangai", desc:"Famous cultural heritage museum at Karaikudi.", img:"/static/images/alagappa.png", lat:9.5587, lng:78.6941, video:"static/videos/alagappa.mp4"},
+            {name:"Keeladi Heritage Museum", district:"Sivagangai", desc:"Archaeological museum of ancient Tamil civilization.", img:"/static/images/keeladi.png", lat:9.8636, lng:78.1824, video:"https://www.youtube.com/results?search_query=keeladi+heritage+museum"},
+            {name:"Sivagangai Palace Museum", district:"Sivagangai", desc:"Royal palace museum with cultural exhibits.", img:"/static/images/sivagangai_palace.png", lat:9.8532, lng:78.3456, video:"https://www.youtube.com/results?search_query=sivagangai+palace+museum"},
+            {name:"Pudukkottai Government Museum", district:"Pudukkottai", desc:"Historic museum with sculptures and artifacts.", img:"/static/images/pudukkottai.png", lat:10.3795, lng:78.8200, video:"static/videos/pudukkottai.mp4"},
+            {name:"Pudukkottai Fort Museum", district:"Pudukkottai", desc:"Fort museum with ancient relics.", img:"/static/images/pudukkottai_fort.png", lat:10.3821, lng:78.8251, video:"https://www.youtube.com/results?search_query=pudukkottai+fort+museum"},
+            {name:"Arulmigu Temple Museum", district:"Pudukkottai", desc:"Museum inside temple premises.", img:"/static/images/pudukkottai_temple.png", lat:10.3850, lng:78.8300, video:"https://www.youtube.com/results?search_query=pudukkottai+temple+museum"},
+            {name:"Chennai Government Museum", district:"Chennai", desc:"Largest museum complex in South India.", img:"/static/images/chennai.jpg", lat:13.0760, lng:80.2632, video:"https://www.youtube.com/results?search_query=chennai+government+museum"},
+            {name:"Fort Museum Chennai", district:"Chennai", desc:"Museum showcasing Chennai fort artifacts.", img:"/static/images/chennai_fort.png", lat:13.0820, lng:80.2700, video:"https://www.youtube.com/results?search_query=fort+museum+chennai"},
+            {name:"MGR Film Museum", district:"Chennai", desc:"Dedicated to Tamil cinema history.", img:"/static/images/mgr_film.png", lat:13.0645, lng:80.2470, video:"https://www.youtube.com/results?search_query=mgr+film+museum"},
+            {name:"Madurai Gandhi Memorial Museum", district:"Madurai", desc:"Memorial museum dedicated to Mahatma Gandhi.", img:"/static/images/madurai.png", lat:9.9182, lng:78.1198, video:"https://www.youtube.com/results?search_query=gandhi+museum+madurai"},
+            {name:"Thirumalai Nayak Museum", district:"Madurai", desc:"Exhibits from Nayak period.", img:"/static/images/thirumalai_nayak.png", lat:9.9235, lng:78.1190, video:"https://www.youtube.com/results?search_query=thirumalai+nayak+museum"},
+            {name:"Meenakshi Temple Museum", district:"Madurai", desc:"Artifacts inside Meenakshi temple.", img:"/static/images/meenakshi_temple.png", lat:9.9190, lng:78.1195, video:"https://www.youtube.com/results?search_query=meenakshi+temple+museum"},
+            {name:"Thanjavur Royal Palace Museum", district:"Thanjavur", desc:"Historic artifacts of Chola dynasty.", img:"/static/images/thanjavur_palace.png", lat:10.7867, lng:79.1390, video:"https://www.youtube.com/results?search_query=thanjavur+royal+palace+museum"},
+            {name:"Thanjavur Art Gallery", district:"Thanjavur", desc:"Traditional art and bronze sculptures.", img:"/static/images/thanjavur_art.png", lat:10.7870, lng:79.1400, video:"https://www.youtube.com/results?search_query=thanjavur+art+gallery"},
+            {name:"Thanjavur Saraswathi Mahal Museum", district:"Thanjavur", desc:"One of the oldest libraries and museums in India.", img:"/static/images/thanjavur_saraswathi.png", lat:10.7880, lng:79.1420, video:"https://www.youtube.com/results?search_query=saraswathi+mahal+museum"},
+            {name:"Coimbatore Gass Forest Museum", district:"Coimbatore", desc:"Museum for forestry and wildlife.", img:"/static/images/coimbatore_gass.png", lat:11.0053, lng:76.9614, video:"https://www.youtube.com/results?search_query=coimbatore+gass+forest+museum"},
+            {name:"Government Museum Coimbatore", district:"Coimbatore", desc:"Cultural museum of Kongu region.", img:"/static/images/coimbatore.png", lat:11.0040, lng:76.9650, video:"https://www.youtube.com/results?search_query=kongu+museum"},
+            {name:"Coimbatore Textile Museum", district:"Coimbatore", desc:"Exhibits on textile heritage.", img:"/static/images/coimbatore_textile.png", lat:11.0060, lng:76.9660, video:"https://www.youtube.com/results?search_query=coimbatore+textile+museum"},
+            {name:"Kanyakumari Gandhi Memorial Museum", district:"Kanyakumari", desc:"Dedicated to Mahatma Gandhi.", img:"/static/images/kanyakumari.png", lat:8.0883, lng:77.5385, video:"https://www.youtube.com/results?search_query=kanyakumari+gandhi+memorial+museum"},
+            {name:"Padmanabhapuram Palace Museum", district:"Kanyakumari", desc:"Historic palace museum.", img:"/static/images/padmanabhapuram.png", lat:8.2250, lng:77.4872, video:"https://www.youtube.com/results?search_query=padmanabhapuram+palace+museum"},
+            {name:"Vattakottai Fort Museum", district:"Kanyakumari", desc:"Coastal fort museum with history exhibits.", img:"/static/images/vattakottam.png", lat:8.1500, lng:77.5500, video:"https://www.youtube.com/results?search_query=vattakottai+fort+museum"},
+            {name:"Tirunelveli Nellaiappar Museum", district:"Tirunelveli", desc:"Artifacts related to Nellaiappar temple.", img:"/static/images/thirunelveli.png", lat:8.7100, lng:77.7550, video:"https://www.youtube.com/results?search_query=tirunelveli+museum"},
+            {name:"Tirunelveli Heritage Museum", district:"Tirunelveli", desc:"Local history and cultural exhibits.", img:"/static/images/tirunelveli2.png", lat:8.7150, lng:77.7600, video:"https://www.youtube.com/results?search_query=tirunelveli+heritage+museum"},
+            {name:"Tirunelveli Fort Museum", district:"Tirunelveli", desc:"Fort artifacts and exhibits.", img:"/static/images/tirunelveli3.png", lat:8.7120, lng:77.7580, video:"https://www.youtube.com/results?search_query=tirunelveli+fort+museum"},
+            {name:"Salem Government Museum", district:"Salem", desc:"Historical museum of Salem district.", img:"/static/images/salem.png", lat:11.6643, lng:78.1460, video:"https://www.youtube.com/results?search_query=salem+museum"},
+            {name:"Salem Art Gallery", district:"Salem", desc:"Art and sculpture exhibits.", img:"/static/images/salem_art.png", lat:11.6650, lng:78.1500, video:"https://www.youtube.com/results?search_query=salem+art+gallery"},
+            {name:"Salem Fort Museum", district:"Salem", desc:"Museum inside Salem Fort.", img:"/static/images/salem3.png", lat:11.6660, lng:78.1510, video:"https://www.youtube.com/results?search_query=salem+fort+museum"},
+            {name:"Erode Textile Museum", district:"Erode", desc:"Museum showcasing textile heritage.", img:"/static/images/erode1.png", lat:11.3410, lng:77.7172, video:"https://www.youtube.com/results?search_query=erode+textile+museum"},
+            {name:"Erode Archeology Museum", district:"Erode", desc:"Archeological exhibits in Erode.", img:"/static/images/erode2.png", lat:11.3420, lng:77.7180, video:"https://www.youtube.com/results?search_query=erode+archeology+museum"},
+            {name:"Erode Science Museum", district:"Erode", desc:"Science and technology exhibits.", img:"/static/images/erode3.png", lat:11.3430, lng:77.7190, video:"https://www.youtube.com/results?search_query=erode+science+museum"},
+            {name:"Vellore Government Museum", district:"Vellore", desc:"Museum for local history and artifacts.", img:"/static/images/vellore1.png", lat:12.9165, lng:79.1325, video:"https://www.youtube.com/results?search_query=vellore+museum"},
+            {name:"Vellore Fort Museum", district:"Vellore", desc:"Fort history and artifacts.", img:"/static/images/vellore2.png", lat:12.9170, lng:79.1340, video:"https://www.youtube.com/results?search_query=vellore+fort+museum"},
+            {name:"Vellore Medical Heritage Museum", district:"Vellore", desc:"Museum showcasing medical history.", img:"/static/images/vellore3.png", lat:12.9180, lng:79.1350, video:"https://www.youtube.com/results?search_query=vellore+medical+museum"},
+            {name:"Thoothukudi Maritime Museum", district:"Thoothukudi", desc:"Museum showcasing maritime history.", img:"/static/images/thoothukudi1.png", lat:8.7642, lng:78.1348, video:"https://www.youtube.com/results?search_query=thoothukudi+museum"},
+            {name:"Thoothukudi Port Museum", district:"Thoothukudi", desc:"Port history and maritime exhibits.", img:"/static/images/thoothukudi2.png", lat:8.7650, lng:78.1350, video:"https://www.youtube.com/results?search_query=thoothukudi+port+museum"},
+            {name:"Thoothukudi Local Heritage Museum", district:"Thoothukudi", desc:"Local history and culture.", img:"/static/images/thoothukudi3.png", lat:8.7660, lng:78.1360, video:"https://www.youtube.com/results?search_query=thoothukudi+heritage+museum"},
+            {name:"Villupuram Heritage Museum", district:"Villupuram", desc:"Local history and cultural artifacts.", img:"/static/images/vilupuram1.png", lat:11.9416, lng:79.4910, video:"https://www.youtube.com/results?search_query=villupuram+museum"},
+            {name:"Villupuram Archaeology Museum", district:"Villupuram", desc:"Ancient artifacts and archeology.", img:"/static/images/villupuram2.png", lat:11.9420, lng:79.4920, video:"https://www.youtube.com/results?search_query=villupuram+archeology+museum"},
+            {name:"Villupuram Art Museum", district:"Villupuram", desc:"Local art and exhibitions.", img:"/static/images/villupuram3.png", lat:11.9430, lng:79.4930, video:"https://www.youtube.com/results?search_query=villupuram+art+museum"},
+            {name:"Kanchipuram Temple Museum", district:"Kanchipuram", desc:"Artifacts and history of Kanchipuram temples.", img:"/static/images/kanchipuram1.png", lat:12.8311, lng:79.7036, video:"https://www.youtube.com/results?search_query=kanchipuram+temple+museum"},
+            {name:"Kanchipuram Silk Museum", district:"Kanchipuram", desc:"Exhibits of traditional silk weaving.", img:"/static/images/kanchipuram2.png", lat:12.8320, lng:79.7040, video:"https://www.youtube.com/results?search_query=kanchipuram+silk+museum"},
+            {name:"Kanchipuram Archeology Museum", district:"Kanchipuram", desc:"Archeological findings of Kanchipuram.", img:"/static/images/kanchipuram3.png", lat:12.8330, lng:79.7050, video:"https://www.youtube.com/results?search_query=kanchipuram+archeology+museum"},
+            {name:"Tiruvarur Temple Museum", district:"Tiruvarur", desc:"Artifacts from Tiruvarur temples.", img:"/static/images/tiruvarur2.png", lat:10.7680, lng:79.6330, video:"https://www.youtube.com/results?search_query=tiruvarur+temple+museum"},
+            {name:"Tiruvarur Art Museum", district:"Tiruvarur", desc:"Local art and cultural exhibits.", img:"/static/images/tiruvarur3.png", lat:10.7690, lng:79.6340, video:"https://www.youtube.com/results?search_query=tiruvarur+art+museum"},
+            {name:"Namakkal Rock Fort Museum", district:"Namakkal", desc:"Exhibits inside Namakkal fort.", img:"/static/images/namakkal1.png", lat:11.2170, lng:78.1670, video:"https://www.youtube.com/results?search_query=namakkal+fort+museum"},
+            {name:"Namakkal Heritage Museum", district:"Namakkal", desc:"Local history and cultural artifacts.", img:"/static/images/namakkal3.png", lat:11.2190, lng:78.1690, video:"https://www.youtube.com/results?search_query=namakkal+heritage+museum"},
+            {name:"Thiruvannamalai Arunachaleswarar Museum", district:"Thiruvannamalai", desc:"Artifacts of Arunachaleswarar temple.", img:"/static/images/tiruvannamalai1.png", lat:12.2253, lng:79.0731, video:"https://www.youtube.com/results?search_query=thiruvannamalai+temple+museum"},
+            {name:"Thiruvannamalai Heritage Museum", district:"Thiruvannamalai", desc:"Local history exhibits.", img:"/static/images/thiruvannamalai2.png", lat:12.2260, lng:79.0740, video:"https://www.youtube.com/results?search_query=thiruvannamalai+heritage+museum"},
+            {name:"Nagapattinam Government Museum", district:"Nagapattinam", desc:"Artifacts from Chola dynasty.", img:"/static/images/nagapattinam1.png", lat:10.7670, lng:79.8400, video:"https://www.youtube.com/results?search_query=nagapattinam+chola+museum"},
+            {name:"Nagapattinam Art Museum", district:"Nagapattinam", desc:"Local art and sculpture displays.", img:"/static/images/nagapattinam2.png", lat:10.7690, lng:79.8420, video:"https://www.youtube.com/results?search_query=nagapattinam+art+museum"},
+            {name:"Perambalur Ammonite Museum", district:"Perambalur", desc:"Artifacts showcasing local history.", img:"/static/images/perambalur1.png", lat:11.2360, lng:78.8760, video:"https://www.youtube.com/results?search_query=perambalur+museum"},
+            {name:"Dharmapuri Fort Museum", district:"Dharmapuri", desc:"Fort artifacts and local history.", img:"/static/images/dharmapuri1.png", lat:12.1380, lng:78.1580, video:"https://www.youtube.com/results?search_query=dharmapuri+fort+museum"},
+            {name:"Dharmapuri Archeology Museum", district:"Dharmapuri", desc:"Archeological findings in Dharmapuri.", img:"/static/images/dharmapuri2.png", lat:12.1390, lng:78.1590, video:"https://www.youtube.com/results?search_query=dharmapuri+archeology+museum"},
+            {name:"Adhiyamaan Memorial Museum", district:"Dharmapuri", desc:"Artifacts showcasing local culture.", img:"/static/images/dharmapuri3.png", lat:12.1400, lng:78.1600, video:"https://www.youtube.com/results?search_query=dharmapuri+cultural+museum"},
+            {name:"Karur Government Museum", district:"Karur", desc:"Local history and artifacts.", img:"/static/images/karur1.png", lat:10.9600, lng:78.0800, video:"https://www.youtube.com/results?search_query=karur+museum"},
+            {name:"Karur Textile Museum", district:"Karur", desc:"Exhibits on textile heritage.", img:"/static/images/karur2.png", lat:10.9610, lng:78.0810, video:"https://www.youtube.com/results?search_query=karur+textile+museum"},
+            {name:"Karur Fort Museum", district:"Karur", desc:"Artifacts from Karur Fort.", img:"/static/images/karur3.png", lat:10.9620, lng:78.0820, video:"https://www.youtube.com/results?search_query=karur+fort+museum"},
+            {name:"Puducherry Museum", district:"Puducherry", desc:"Government museum with colonial artifacts.", img:"/static/images/puducherry1.png", lat:11.9340, lng:79.8300, video:"https://www.youtube.com/results?search_query=puducherry+museum"},
+            {name:"Puducherry Art Museum", district:"Puducherry", desc:"Exhibits of French colonial art and sculptures.", img:"/static/images/puducherry2.png", lat:11.9360, lng:79.8320, video:"https://www.youtube.com/results?search_query=puducherry+art+museum"},
+            {name:"Theni Government Museum", district:"Theni", desc:"Local history and artifacts.", img:"/static/images/theni1.png", lat:10.0000, lng:77.4800, video:"https://www.youtube.com/results?search_query=theni+museum"},
+            {name:"Cuddalore Government Museum", district:"Cuddalore", desc:"Artifacts showcasing local history.", img:"/static/images/cuddalore1.png", lat:11.7500, lng:79.7500, video:"https://www.youtube.com/results?search_query=cuddalore+museum"},
+            {name:"Cuddalore Heritage Museum", district:"Cuddalore", desc:"Local cultural and historical artifacts.", img:"/static/images/cuddalore2.png", lat:11.7520, lng:79.7520, video:"https://www.youtube.com/results?search_query=cuddalore+heritage+museum"},
+            {name:"Virudhunagar Governmnet Museum", district:"Virudhunagar", desc:"Local cultural artifacts.", img:"/static/images/virudhunagar1.png", lat:9.4510, lng:77.7910, video:"https://www.youtube.com/results?search_query=virudhunagar+heritage+museum"},
+            {name:"Tiruppur Textile Museum", district:"Tiruppur", desc:"Textile heritage and innovations.", img:"/static/images/tiruppur1.png", lat:11.1080, lng:77.3410, video:"https://www.youtube.com/results?search_query=tiruppur+textile+museum"},
+        ];
+
+        // ====== Populate District Dropdown ======
+        const districtSelect = document.getElementById("district");
+        [...new Set(museums.map(m => m.district))].forEach(d => {
+            const opt = document.createElement("option");
+            opt.value = d;
+            opt.innerText = d;
+            districtSelect.appendChild(opt);
+        });
+
+        // ====== Render Museums ======
+        function renderMuseums() {
+            const container = document.getElementById("museums");
+            container.innerHTML = "";
+            const search = document.getElementById("search").value.toLowerCase();
+            const district = districtSelect.value;
+            museums.forEach(m => {
+                if (m.name.toLowerCase().includes(search) && (district === "all" || m.district === district)) {
+                    container.innerHTML += `
+                        <div class="card">
+                            <img src="${m.img}">
+                            <h3>${m.name}</h3>
+                            <p><b>${m.district}</b></p>
+                            <p>${m.desc}</p>
+                            <button onclick="window.open('${m.video}')">🎥 Video</button>
+                            <button onclick="viewLocation('${m.name}', ${m.lat}, ${m.lng}, '${m.img}')">📍 Map</button>
+                            <button onclick="bookTicket('${m.name}')">🎟️ Book Ticket</button>
+                            <button onclick='viewArtifacts("${m.name}")'>🖼️ Artifacts</button>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        renderMuseums();
+
+        // ====== Ticket Booking (FIXED FOR FLASK) ======
+        function bookTicket(name) {
+            window.location.href = "/ticket?museum=" + encodeURIComponent(name);
+        }
+
+        // ====== Artifacts ======
+        function viewArtifacts(name) {
+            window.location.href = "/artifact?museum=" + encodeURIComponent(name);
+        }
+
+        // ====== Map ======
+        function viewLocation(name, lat, lng, img) {
+            window.location.href = "/map?name=" + encodeURIComponent(name) + "&lat=" + lat + "&lng=" + lng + "&img=" + encodeURIComponent(img);
+        }
+
+        // ====== Back to Admin Dashboard ======
+        function goBack() {
+            window.location.href = "/admin";
+        }
+    </script>
+</body>
+</html>
+
+    <script>
+    // Hide logout buttons on small screens
+    (function(){
+        const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+        function update(){
+            const hide = window.innerWidth <= 480;
+            document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+        }
+        update();
+        window.addEventListener('resize', update);
+    })();
+    </script>

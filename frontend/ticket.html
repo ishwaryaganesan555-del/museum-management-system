@@ -1,0 +1,682 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>Book Ticket</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #2a2a3e, #4a3f5f);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position: relative;
+    filter: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.container{
+    width:420px;
+    background: rgba(11,11,18,0.95);
+    color: lavender;
+    padding:30px;
+    border-radius:18px;
+    box-shadow: 0 0 15px rgba(160,90,255,0.25);
+    text-align:center;
+    border: 1px solid rgba(160,90,255,0.15);
+    transition: all 0.35s ease;
+    cursor:pointer;
+    will-change: transform;
+    filter: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    .container {
+        width: calc(100% - 20px);
+        max-width: 100%;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 12px;
+    }
+    
+    h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    label {
+        font-size: 13px;
+        margin-top: 8px;
+    }
+    
+    input {
+        padding: 12px;
+        font-size: 16px;
+        margin-top: 6px;
+    }
+    
+    button {
+        margin-top: 14px;
+        padding: 14px;
+        font-size: 14px;
+        border-radius: 6px;
+    }
+    
+    .payment-section {
+        padding: 15px !important;
+        margin-top: 15px !important;
+    }
+    
+    .total-amount-box {
+        padding: 12px !important;
+        margin: 12px 0 !important;
+    }
+    
+    .total-amount-box #amountText {
+        font-size: 16px !important;
+    }
+    
+    .qr-code-display img {
+        max-width: 180px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .container {
+        width: 100%;
+        padding: 15px;
+        margin: 0;
+        min-height: 100vh;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-container {
+        display: none;
+    }
+    
+    .home-btn, .logout {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    h2 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+    
+    h3 {
+        font-size: 14px;
+    }
+    
+    label {
+        font-size: 12px;
+        margin-top: 6px;
+    }
+    
+    input {
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 5px;
+        border-radius: 6px;
+    }
+    
+    button {
+        margin-top: 12px;
+        padding: 12px;
+        font-size: 13px;
+    }
+    
+    .payment-section {
+        padding: 12px !important;
+        margin-top: 12px !important;
+        border-radius: 6px !important;
+    }
+    
+    .payment-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .ticket-price {
+        font-size: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .total-amount-box {
+        padding: 10px !important;
+        margin: 10px 0 !important;
+        border-radius: 6px;
+    }
+    
+    .total-amount-box #amountText {
+        font-size: 15px !important;
+        margin: 5px 0 !important;
+    }
+    
+    .qr-code-display {
+        padding: 10px !important;
+        margin: 10px 0 !important;
+    }
+    
+    .qr-code-display p {
+        font-size: 12px !important;
+        margin: 0 0 8px 0 !important;
+    }
+    
+    .qr-code-display img {
+        max-width: 160px !important;
+        height: auto !important;
+    }
+    
+    .payment-checkbox {
+        margin: 10px 0 !important;
+        font-size: 12px;
+    }
+    
+    .payment-checkbox input[type="checkbox"] {
+        margin-right: 6px;
+    }
+    
+    .payment-checkbox label {
+        float: none;
+        display: inline;
+        margin: 0;
+        font-size: 12px;
+        margin-top: 0;
+    }
+}
+
+.container:hover{
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 0 25px rgba(160,90,255,0.5), 0 0 60px rgba(160,90,255,0.3);
+}
+
+/* Completely remove ALL blur effects */
+* {
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+h2{
+    margin-bottom:20px;
+    color: #e6ccff;
+}
+
+label{
+    float:left;
+    margin-top:10px;
+    font-size:14px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:6px;
+    border:none;
+    outline:none;
+}
+
+input[readonly]{
+    background:#ddd;
+}
+
+button{
+    width:100%;
+    margin-top:18px;
+    padding:12px;
+    background: linear-gradient(to right, #b266ff, #7a00cc);
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.btn-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.home-btn {
+    padding: 8px 14px;
+    background: #4B0082;
+    color: #e6ccff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.home-btn:hover {
+    background: #7a00cc;
+}
+
+.logout{
+    padding: 8px 14px;
+    background: #7a00cc;
+    color: #e6ccff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.logout:hover{
+    background: #b266ff;
+}
+
+/* ✅ Flash Message */
+.flash{
+    background:#3b0057;
+    color:#fff;
+    padding:10px;
+    border-radius:6px;
+    margin-bottom:15px;
+}
+
+/* ✅ Payment Section */
+.payment-section{
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid rgba(186,85,211,0.3);
+}
+
+.payment-section h3{
+    color: #b266ff;
+    margin-top: 0;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.ticket-price{
+    font-size: 14px;
+    color: #e6ccff;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.total-amount-box{
+    background: rgba(178, 102, 255, 0.2);
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    text-align: center;
+    border: 2px solid #b266ff;
+}
+
+.total-amount-box #amountText{
+    font-size: 18px;
+    font-weight: bold;
+    color: #b266ff;
+    margin: 10px 0;
+}
+
+.qr-code-display{
+    text-align: center;
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+}
+
+.qr-code-display img{
+    max-width: 200px;
+    height: auto;
+    border-radius: 6px;
+}
+
+.payment-checkbox{
+    margin: 15px 0;
+    text-align: left;
+}
+
+.payment-checkbox input[type="checkbox"]{
+    width: auto;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.payment-checkbox label{
+    float: none;
+    display: inline;
+    margin: 0;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ✅ Home + Logout Buttons -->
+<div class="btn-container">
+    <button class="home-btn" onclick="goHome()">🏠 Home</button>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+</div>
+
+<div class="container">
+
+    <!-- ✅ Flash Message -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {{ messages[0] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <h2>🎟️ Book Your Ticket</h2>
+
+    <form id="bookingForm" method="POST" action="/ticket">
+        <label>Museum</label>
+        <input type="text" id="museum" name="museum" value="{{ museum }}" readonly required>
+
+        <label>Name</label>
+        <input type="text" id="visitorName" name="name" placeholder="Your Name" required>
+
+        <label>Email</label>
+        <input type="email" id="email" name="email" placeholder="Your Email" required>
+
+        <label>Phone</label>
+        <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
+
+        <label>Ticket Date</label>
+        <input type="date" id="bookDate" name="date" required>
+
+        <label>Visit Time (Optional)</label>
+        <input type="time" id="bookTime" name="time">
+
+        <label>No. of Tickets</label>
+        <input type="number" id="tickets" name="tickets" min="1" max="10" value="1" required>
+
+        <input type="hidden" id="totalAmount" name="totalAmount" value="10">
+
+        <!-- Removed duplicate Confirm and Razorpay button; use manual QR confirm below -->
+
+        <!-- ✅ Manual QR Payment Section -->
+        <div class="payment-section">
+            <h3>💳 Pay with UPI using QR Code</h3>
+            
+            <div class="ticket-price">
+                <strong>Ticket Price:</strong> ₹<span id="priceDisplay">10</span> per ticket
+            </div>
+
+            <div class="total-amount-box">
+                <div>Total Amount to Pay:</div>
+                <p id="amountText" style="margin: 10px 0;">₹10</p>
+            </div>
+
+            <div class="qr-code-display">
+                <p style="color: #b266ff; font-weight: bold; margin: 0 0 10px 0;">Scan QR Code with Google Pay, PhonePe, Paytm, or any UPI app</p>
+                <img src="static/images/qrcodeimage.jpeg" alt="UPI Payment QR Code">
+            </div>
+
+            <div class="payment-checkbox">
+                <input type="checkbox" id="paymentCompleted" name="paymentCompleted">
+                <label for="paymentCompleted">☑ I have completed the payment</label>
+            </div>
+
+            <button type="button" id="confirmPaymentBtn" style="background: linear-gradient(to right, #ffc107, #ff9800); margin-top: 10px;">✅ Confirm Booking</button>
+        </div>
+    </form>
+
+    <!-- Confirmation area (will be filled after AJAX booking) -->
+    <div id="confirmation" style="display:none; margin-top:20px; text-align:center; width:380px; margin-left:auto; margin-right:auto; background: rgba(20,20,35,0.95); padding:20px; border-radius:12px; border: 1px solid rgba(186,85,211,0.3);">
+        <h3 id="confMsg" style="color:#b266ff; margin-top:0; font-size:16px;">✅ Booking Successful</h3>
+        <div id="qrcode" style="margin:15px auto"></div>
+        <div id="ticketInfo" style="color:#e6ccff; text-align:left; margin-top:12px; font-size:12px; line-height:1.6"></div>
+        <div style="margin-top:15px; display:flex; gap:8px; justify-content:center;">
+            <button id="downloadQr" style="background: linear-gradient(to right, #b266ff, #7a00cc); flex:1; padding:10px; font-size:12px;">💾 Download QR</button>
+            <button id="gotoTicketPage" style="background: linear-gradient(to right, #7a00cc, #5a0099); flex:1; padding:10px; font-size:12px;">View Ticket Page</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ✅ Manual QR Payment Module
+const ticketsInput = document.getElementById("tickets");
+const price = 10; // ₹10 per ticket
+
+// Update total amount when tickets change
+function updateTotalAmount() {
+    let total = (ticketsInput.value || 1) * price;
+    document.getElementById("totalAmount").value = total;
+    document.getElementById("amountText").innerText = "Please pay ₹" + total + " using QR code";
+    document.getElementById("priceDisplay").innerText = price;
+}
+
+ticketsInput.addEventListener("input", updateTotalAmount);
+// Initialize on page load
+updateTotalAmount();
+
+// ✅ Handle Manual QR Payment Confirmation
+const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+const paymentCheckbox = document.getElementById('paymentCompleted');
+
+confirmPaymentBtn.addEventListener('click', async function(){
+    // Validate all required fields
+    const museum = document.getElementById('museum').value;
+    const name = document.getElementById('visitorName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const date = document.getElementById('bookDate').value;
+    const time = document.getElementById('bookTime').value;
+    const tickets = parseInt(document.getElementById('tickets').value || '1', 10);
+
+    // Check if payment is marked as completed
+    if(!paymentCheckbox.checked){
+        alert('⚠️ Please verify that you have completed the payment by checking the box');
+        return;
+    }
+
+    if(!museum || !name || !email || !phone || !date){
+        alert('❌ Please fill in all required fields (Museum, Name, Email, Phone, Date)');
+        return;
+    }
+
+    confirmPaymentBtn.disabled = true;
+    confirmPaymentBtn.innerText = 'Processing...';
+
+    try{
+        // Submit booking with manual payment method
+        const formData = new FormData();
+        formData.append('museum', museum);
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('phone', phone);
+        formData.append('date', date);
+        formData.append('time', time || '');
+        formData.append('tickets', tickets);
+        formData.append('payment_method', 'manual_upi');
+        formData.append('ajax', '1');
+
+        const res = await fetch('/ticket', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+        if(contentType.includes('application/json')){
+            const j = await res.json();
+            if(j && j.success && j.ticket){
+                showConfirmation(j.ticket);
+                paymentCheckbox.checked = false; // Reset checkbox
+                return;
+            } else {
+                alert('❌ Booking failed: ' + (j.message || 'Unknown error'));
+            }
+        } else {
+            // Fallback: reload page
+            window.location.reload();
+        }
+    }catch(err){
+        alert('❌ Booking error: ' + err);
+    }finally{
+        confirmPaymentBtn.disabled = false;
+        confirmPaymentBtn.innerText = '✅ Confirm Booking';
+    }
+});
+
+function logout(){
+    window.location.href = "/login";
+}
+
+function goHome(){
+    window.location.href = "/home";
+}
+
+// AJAX submit form and show QR on success
+const form = document.getElementById('bookingForm');
+if(form){
+    form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        const oldText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'Booking...';
+
+        const formData = new FormData(form);
+        // add marker so backend recognizes AJAX if needed
+        formData.append('ajax','1');
+
+        try{
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+            // If backend redirected, it may return HTML - try to parse JSON
+            const contentType = res.headers.get('content-type') || '';
+            if(contentType.includes('application/json')){
+                const j = await res.json();
+                if(j && j.success && j.ticket){
+                    showConfirmation(j.ticket);
+                    return;
+                }
+            }
+            // fallback: reload page to follow redirect
+            window.location.reload();
+        }catch(err){
+            alert('Booking failed: ' + err);
+        }finally{
+            btn.disabled = false;
+            btn.innerText = oldText;
+        }
+    });
+}
+
+function showConfirmation(ticket){
+    const conf = document.getElementById('confirmation');
+    const info = document.getElementById('ticketInfo');
+    const qEl = document.getElementById('qrcode');
+    conf.style.display = 'block';
+    info.innerHTML = `<b>Ticket Code:</b> ${ticket.code}<br><b>Museum:</b> ${ticket.museum}<br><b>Name:</b> ${ticket.name}<br><b>Date:</b> ${ticket.date} ${ticket.time}<br><b>Tickets:</b> ${ticket.qty}<br><br><span style="color:#b266ff;"><b>💳 Payment Details</b></span><br><b>Total Amount:</b> ₹${ticket.total_price || 0}<br><b>Payment Method:</b> ${(ticket.payment_method || 'manual_upi').toUpperCase().replace('_', ' ')}<br><b>Status:</b> ✅ COMPLETED`;
+
+    // Render QR with full JSON payload (scanner expects JSON or code)
+    const payload = JSON.stringify({ ticket_code: ticket.code, id: ticket.id, name: ticket.name, museum: ticket.museum, date: ticket.date, time: ticket.time });
+    qEl.innerHTML = '';
+    new QRCode(qEl, { text: payload, width:220, height:220, colorDark:'#000000', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.H });
+
+    document.getElementById('downloadQr').onclick = function(){
+        // Wait a moment for QR to render completely
+        setTimeout(function(){
+            const canvas = qEl.querySelector('canvas');
+            const img = qEl.querySelector('img');
+            
+            let dataUrl = null;
+            
+            // Try canvas first (most reliable)
+            if(canvas){
+                try{
+                    dataUrl = canvas.toDataURL('image/png');
+                }catch(err){
+                    console.log('Canvas error, trying image:', err);
+                }
+            }
+            
+            // Fallback to image if canvas fails
+            if(!dataUrl && img){
+                dataUrl = img.src;
+            }
+            
+            // If still no data, try fetching canvas data differently
+            if(!dataUrl && qEl.children.length > 0){
+                const child = qEl.children[0];
+                if(child.tagName === 'CANVAS'){
+                    try{
+                        dataUrl = child.toDataURL('image/png');
+                    }catch(err){
+                        console.error('Canvas conversion failed:', err);
+                    }
+                }
+            }
+            
+            if(!dataUrl){ 
+                alert('❌ QR code not rendered yet. Please try again in a moment.');
+                return;
+            }
+            
+            // Download the QR code
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `ticket_${ticket.code}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            console.log('✅ QR downloaded:', ticket.code);
+        }, 200);
+    };
+
+    document.getElementById('gotoTicketPage').onclick = function(){
+        window.location.href = '/ticket_confirm?code=' + encodeURIComponent(ticket.code);
+    };
+}
+
+// Razorpay removed — page uses manual QR payment flow
+
+</script>
+
+</body>
+</html>
+
+<script>
+// Hide logout buttons on small screens
+;(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+</script>

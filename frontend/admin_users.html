@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Admin - Users</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>👥</text></svg>" />
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#f4f2ff,#ededf5);
+    min-height:100vh;
+}
+
+/* Header */
+header{
+    background: linear-gradient(to right, #7b6cff, #b497ff);
+    color:white;
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    position:relative;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+
+.nav-btn{
+    position:absolute;
+    top:15px;
+    padding:8px 16px;
+    background:#4b0082;
+    color:white;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.back-btn{ left:15px; }
+.logout-btn{ right:15px; }
+
+.nav-btn:hover{
+    background:#6a0dad;
+}
+
+/* Table */
+.container{
+    width:92%;
+    margin:30px auto;
+    background:white;
+    border-radius:16px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.12);
+    overflow:hidden;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    padding:14px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#7b6cff;
+    color:white;
+    letter-spacing:0.5px;
+}
+
+tr:hover{
+    background:#f4f1ff;
+}
+
+.status{
+    padding:6px 14px;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.active{
+    background:#5cb85c;
+    color:white;
+}
+
+.inactive{
+    background:#999;
+    color:white;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.error {
+    background: #ffcccc;
+    color: #cc0000;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 8px;
+    border: 1px solid #ff6666;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    header { font-size: 18px; padding: 12px; }
+    button { padding: 8px 12px; font-size: 12px; }
+    table { font-size: 12px; }
+    table th, table td { padding: 8px; }
+    input { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+    header { font-size: 16px; padding: 8px; }
+    .container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; margin: 15px 0; border-radius: 0; }
+    button { padding: 6px 10px; font-size: 11px; }
+    table { font-size: 11px; width: 100%; min-width: 500px; }
+    table th, table td { padding: 5px 8px; white-space: nowrap; }
+    input { width: calc(100% - 12px); padding: 6px; font-size: 12px; }
+    .back-btn, .logout-btn { display: none; }
+    body { overflow-x: hidden; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    👥 User Management
+    <button class="nav-btn back-btn" onclick="goBack()">⬅ Back</button>
+    <button class="nav-btn logout-btn" onclick="logout()">🚪 Logout</button>
+</header>
+
+<div class="container">
+<table>
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Total Bookings</th>
+    <th>Last Museum</th>
+    <th>Status</th>
+</tr>
+</thead>
+
+<tbody id="userTable">
+    <tr class="loading"><td colspan="6">Loading users...</td></tr>
+</tbody>
+
+</table>
+</div>
+
+<script>
+function loadUsers(){
+    const table = document.getElementById("userTable");
+
+// Hide logout buttons on small screens
+(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+    
+    fetch('/api/users', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            window.location.href = '/login';
+            throw new Error('Unauthorized');
+        }
+        return response.json();
+    })
+    .then(data => {
+        table.innerHTML = "";
+        
+        if (data.error) {
+            table.innerHTML = `<tr><td colspan="6" class="error">❌ Error: ${data.error}</td></tr>`;
+            return;
+        }
+        
+        if (data.users.length === 0) {
+            table.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px;">No users found</td></tr>`;
+            return;
+        }
+        
+        data.users.forEach(user => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.phone}</td>
+                <td>${user.total_bookings}</td>
+                <td>${user.last_museum}</td>
+                <td>
+                    <span class="status ${user.status}">
+                        ${user.status.toUpperCase()}
+                    </span>
+                </td>
+            `;
+            table.appendChild(tr);
+        });
+    })
+    .catch(error => {
+        console.error('Error loading users:', error);
+        table.innerHTML = `<tr><td colspan="6" class="error">❌ Failed to load users. Please refresh the page.</td></tr>`;
+    });
+}
+
+function goBack(){
+    window.location.href = "/admin";
+}
+
+function logout(){
+    window.location.href = "/logout";
+}
+
+// Load users on page load
+loadUsers();
+</script>
+
+</body>
+</html>

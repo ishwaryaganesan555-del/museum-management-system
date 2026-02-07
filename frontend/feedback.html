@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Museum Feedback</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:linear-gradient(135deg,#f5f5f5,#e8e0f0);
+    color:#333;
+}
+
+/* HEADER */
+.header{
+    background:#ba55d3;
+    padding:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.header h2{
+    color:white;
+    margin:0;
+}
+
+.header div{
+    display:flex;
+    gap:10px;
+}
+
+.header button{
+    background:white;
+    color:#ba55d3;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.header button:hover{
+    background:#e8d0f0;
+}
+
+/* CONTAINER */
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:12px;
+    border:1px solid #d8c8e8;
+    box-shadow:0 2px 8px rgba(186,85,211,0.1);
+}
+
+/* INPUTS */
+textarea, input{
+    width:100%;
+    padding:8px;
+    margin-top:6px;
+    border-radius:6px;
+    border:1px solid #d8c8e8;
+    box-sizing:border-box;
+    font-family:Segoe UI;
+}
+
+button.submit{
+    background:#ba55d3;
+    color:white;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    width:100%;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:6px;
+}
+
+button.submit:hover{
+    background:#9370db;
+}
+
+/* STARS */
+.star{
+    font-size:25px;
+    cursor:pointer;
+    color:#d0d0d0;
+    margin-right:4px;
+}
+
+.star.active{
+    color:#ba55d3;
+}
+
+.rating-display{
+    color:#ba55d3;
+    font-size:18px;
+}
+
+h3{
+    color:#ba55d3;
+    margin-top:0;
+}
+
+.summary{
+    color:#888;
+    font-size:14px;
+    margin-bottom:12px;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    .header { flex-direction: column; gap: 8px; }
+    input, select { width: calc(100% - 20px); padding: 10px; font-size: 14px; }
+    button { padding: 8px 12px; font-size: 12px; }
+    .card { padding: 12px; }
+    .rating { font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    body { margin: 0; padding: 0; }
+    .header { padding: 10px; gap: 6px; }
+    .header h2 { font-size: 16px; }
+    input, select { width: calc(100% - 20px); padding: 8px; font-size: 14px; margin: 6px 0; }
+    button { padding: 6px 10px; font-size: 11px; width: calc(100% - 20px) !important; }
+    .card { padding: 10px; margin: 6px; }
+    .card h3 { font-size: 13px; }
+    .rating { font-size: 11px; }
+    .header > div > button { display: none; }
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="header">
+    <h2 id="title">Museum Feedback</h2>
+    <div>
+        <button onclick="window.location.href='/home'" style="margin-right:8px;">🏠 Home</button>
+        <button onclick="window.location.href='/login'">🚪 Logout</button>
+    </div>
+</div>
+
+
+<div class="container">
+
+    <!-- ADD REVIEW -->
+    <div class="card">
+        <h3>📝 Leave a Review</h3>
+        
+        <div>
+            <label>Rating:</label>
+            <div id="stars"></div>
+        </div>
+
+        <textarea id="reviewText" placeholder="Write your experience..." style="height:100px;"></textarea>
+
+        <button class="submit" onclick="submitReview()">Submit Review</button>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary" id="summary"></div>
+
+    <!-- REVIEWS LIST -->
+    <h3>Reviews</h3>
+    <div id="reviews"></div>
+
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const museum = params.get("museum");
+// Hide logout buttons on small screens
+(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+    let rating = 0;
+
+    // Global function definitions
+    function updateStars(){
+        const all = document.querySelectorAll(".star");
+        all.forEach((s,i)=>{
+            s.classList.toggle("active", i<rating);
+        });
+    }
+
+    async function loadReviews(){
+        if(!museum) return;
+        try {
+            const res = await fetch('/api/feedback?museum=' + encodeURIComponent(museum));
+            const data = await res.json();
+            
+            if(data && data.success){
+                const box = document.getElementById("reviews");
+                const summary = document.getElementById("summary");
+                
+                if(data.count > 0){
+                    summary.innerHTML = `<strong>Average Rating:</strong> <span class="rating-display">${'★'.repeat(Math.round(data.average))} (${data.average.toFixed(1)}/5)</span> — <strong>${data.count}</strong> review${data.count===1?'':'s'}`;
+                } else {
+                    summary.innerHTML = "No reviews yet. Be the first to review!";
+                }
+                
+                box.innerHTML = "";
+                
+                if(data.feedbacks && data.feedbacks.length){
+                    data.feedbacks.forEach(r=>{
+                        const div = document.createElement("div");
+                        div.className = "card";
+                        
+                        div.innerHTML = 
+                            "<div style='color:#ffd700;margin-bottom:6px;'>" + "★".repeat(r.rating) + "</div>" +
+                            "<p>" + (r.comments || "No comment") + "</p>" +
+                            "<small style='color:#888;'>" + (r.user_email || "Guest") + " • " + r.submitted_at.split('T')[0] + "</small>";
+                        
+                        box.appendChild(div);
+                    });
+                } else {
+                    box.innerHTML = "<div class='card' style='color:#999;'>No reviews yet.</div>";
+                }
+            } else {
+                document.getElementById("reviews").innerHTML = "<div class='card' style='color:#f00;'>Error loading reviews</div>";
+            }
+        } catch(e) {
+            console.error(e);
+            document.getElementById("reviews").innerHTML = "<div class='card' style='color:#f00;'>Error loading reviews</div>";
+        }
+    }
+
+    async function submitReview(){
+        const text = document.getElementById("reviewText").value.trim();
+
+        if(!museum){
+            alert("No museum selected");
+            return;
+        }
+
+        if(rating==0 || text==""){
+            alert("Please give a rating and write a review");
+            return;
+        }
+
+        try{
+            const res = await fetch('/api/submit_feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ museum: museum, rating: rating, comments: text })
+            });
+            
+            const data = await res.json();
+            
+            if(res.ok && data.success){
+                alert("✅ Thank you! Your review was submitted.");
+                document.getElementById("reviewText").value = "";
+                rating = 0;
+                updateStars();
+                loadReviews();
+            } else {
+                alert("❌ Failed to submit review: " + (data.message || ""));
+            }
+        }catch(e){
+            console.error(e);
+            alert("❌ Error submitting review");
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function(){
+        if (!museum) {
+            document.getElementById("title").innerText = "Feedback - No Museum Selected";
+            document.getElementById("reviews").innerHTML = "<div class='card'>No museum selected. <a href='/home' style='color:cyan'>Go back to home</a></div>";
+        } else {
+            document.getElementById("title").innerText = museum + " — Feedback";
+            
+            /* ========= STAR UI ========= */
+            const starDiv = document.getElementById("stars");
+            for(let i=1;i<=5;i++){
+                const s = document.createElement("span");
+                s.innerHTML="★";
+                s.className="star";
+                s.onclick=()=>{
+                    rating=i;
+                    updateStars();
+                };
+                starDiv.appendChild(s);
+            }
+
+            // Load reviews on page load
+            loadReviews();
+        }
+    });
+</script>
+
+</body>
+</html>

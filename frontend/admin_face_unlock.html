@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <title>Admin Unlock</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🔓</text></svg>" />
+  <style>
+    :root{
+      --lavender-bg: #F3E8FF;
+      --lavender-100: #E9D9FF;
+      --mild-grey: #E6E9EE;
+      --muted: #5B6170;
+      --accent: #8A63FF;
+      --success: #2D8A4A;
+      --danger: #C0392B;
+    }
+    html,body{height:100%;}
+    body {
+      font-family: Inter, Arial, sans-serif;
+      margin: 0;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(50, 30, 80, 0.85), rgba(100, 70, 150, 0.85)), 
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23322B4A" width="1200" height="800"/><g opacity="0.3"><circle cx="100" cy="100" r="80" fill="%238A63FF"/><circle cx="1100" cy="700" r="150" fill="%238A63FF"/><rect x="300" y="200" width="200" height="200" fill="%238A63FF" opacity="0.2"/></g><text x="600" y="400" font-size="80" fill="%23ffffff" opacity="0.15" text-anchor="middle" font-family="Arial">🔒</text></svg>') center/cover;
+      background-attachment: fixed;
+      color: var(--muted);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .password-input-wrapper input {
+      padding-right: 52px; /* room for the eye button */
+      width: 100%;
+      box-sizing: border-box;
+      height: 44px;
+      line-height: 20px;
+      font-size: 15px;
+    }
+    .eye-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      height: 28px;
+      width: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      color: var(--muted);
+    }
+    .eye-toggle:focus { outline: none; }
+    .eye-toggle:hover {
+      color: var(--accent);
+    }
+    .content-wrapper {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    h2{ color: #2b2340; margin-top: 0; margin-bottom:6px; text-align: center; }
+    p { margin: 8px 0; color: var(--muted); text-align: center; }
+    .container{ width: 100%; }
+    .card{
+      background: #fff;
+      border: 1px solid var(--mild-grey);
+      padding: 18px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(70,60,90,0.04);
+    }
+    .row { display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; }
+
+    button{
+      background: linear-gradient(180deg,var(--lavender-100),var(--accent));
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 6px 12px rgba(138,99,255,0.12);
+    }
+    button:active{ transform: translateY(1px); }
+    input[type=password]{ 
+      padding: 10px 12px; 
+      border: 1px solid var(--mild-grey); 
+      border-radius: 6px;
+      width: 100%;
+      margin: 15px 0;
+      box-sizing: border-box;
+    }
+    .password-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+    .password-group button {
+      min-width: 200px;
+    }
+    .message { margin-top:10px; color: var(--danger); font-weight:600 }
+    .note{ font-size:0.9em; color:#6b6f78; margin-top:12px }
+    @media (max-width:760px){
+      .row{ flex-direction:column; }
+      video, canvas{ width:100%; height:auto; }
+    }
+    
+    @media (max-width:480px){
+      body { padding: 0; margin: 0; }
+      .card { width: calc(100% - 20px); padding: 12px; margin: 10px auto; }
+      input { width: calc(100% - 16px); padding: 8px; font-size: 14px; }
+      button { padding: 8px 12px; font-size: 12px; }
+      .eye-toggle { font-size: 16px; }
+      .logout, .logout-btn, .nav-btn { display: none; }
+    }
+  </style>
+  <script>
+    // Eye toggle function
+    function togglePasswordVisibility() {
+// Hide logout buttons on small screens
+(function(){
+  const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+  function update(){
+    const hide = window.innerWidth <= 480;
+    document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+  }
+  update();
+  window.addEventListener('resize', update);
+})();
+      const input = document.getElementById('admin_password');
+      const button = document.getElementById('eye_toggle');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '👁️‍🗨️';
+      } else {
+        input.type = 'password';
+        button.textContent = '👁️';
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="content-wrapper">
+    <h2>Admin Unlock</h2>
+
+    <hr />
+    <h3 style="text-align: center; color: #5B6170;">Password Verification</h3>
+    <p>Enter admin password to unlock.</p>
+    <div class="password-group">
+      <div class="password-input-wrapper">
+        <input type="password" id="admin_password" placeholder="Admin password" />
+        <button type="button" class="eye-toggle" id="eye_toggle" onclick="togglePasswordVisibility()">👁️</button>
+      </div>
+      <button id="verify_password">Verify Password</button>
+    </div>
+
+<script>
+(function(){
+  const verifyPasswordBtn = document.getElementById('verify_password');
+  if (verifyPasswordBtn) {
+    verifyPasswordBtn.addEventListener('click', async () => {
+      const pw = document.getElementById('admin_password').value;
+      if (!pw) { alert('Please enter a password.'); return; }
+      try {
+        const res = await fetch('/api/admin_verify_password', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ password: pw })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('✅ Password verified. Redirecting to admin panel...'); window.location.href = '/admin';
+        } else { alert('❌ ' + (data.message || 'Password verification failed.')); }
+      } catch (e) { alert('❌ Error verifying password: ' + e.message); console.error(e); }
+    });
+  }
+})();
+</script>
+  </div>
+</body>
+</html>

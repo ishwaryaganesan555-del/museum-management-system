@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Museum Artifacts</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<style>
+body{font-family:Arial;background:#3a3a50;margin:0;text-align:center;}
+header{background:#2a2a3e;color:lavender;padding:15px;font-size:22px;}
+#artifacts{display:flex;flex-wrap:wrap;justify-content:center;margin:20px;}
+.card{
+ background:#4a4a60;
+ width:260px;
+ margin:10px;
+ padding:12px;
+ border-radius:10px;
+ box-shadow:0 0 10px rgba(177,157,217,0.5);
+}
+.card img{
+ width:100%;
+ height:200px;
+ object-fit:cover;
+ border-radius:8px;
+ margin-bottom:10px;
+}
+.card h3{margin:5px 0;color:lavender;}
+.card p{margin:3px;color:#d4c5e2;font-size:14px;}
+button{
+ padding:10px 16px;
+ border:none;
+ background:#5a4a80;
+ color:lavender;
+ border-radius:6px;
+ cursor:pointer;
+ margin-bottom:20px;
+ font-weight:bold;
+}
+button:hover{
+ background:#7a6aaa;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    header { font-size: 18px; padding: 10px; }
+    #artifacts { margin: 10px; }
+    .card { width: calc(50% - 10px); margin: 5px; padding: 10px; }
+    .card img { height: 150px; }
+    .card h3 { font-size: 14px; }
+    button { padding: 8px 12px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    body { margin: 0; padding: 0; }
+    header { font-size: 16px; padding: 8px; }
+    #artifacts { margin: 8px; }
+    .card { width: 100%; margin: 6px 0; padding: 8px; }
+    .card img { height: 120px; }
+    .card h3 { font-size: 12px; margin: 3px 0; }
+    .card p { font-size: 11px; }
+    button { padding: 6px 10px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<header id="title">Artifacts</header>
+
+<div id="artifacts"></div>
+
+<button onclick="goBack()">⬅ Back</button>
+
+<script>
+/* ===================== ARTIFACT DATABASE ===================== */
+
+const artifactData = {
+
+// ===== Sivagangai =====
+"Vallal Alagappar Museum":[
+ {name:"Pottery", period:"12th Century", image:"static/images/pottery.jpeg"},
+ {name:"Historical Documents of Ancient", period:"18th Century", image:"static/images/Historical.jpeg"},
+ {name:"Alagappar Art", period:"Early", image:"static/images/alagappar.jpeg"},
+ {name:"Things Used by Alagappar", period:"Early", image:"static/images/alagappar_things.jpeg"}
+],
+"Keeladi Heritage Museum":[
+ {name:"Keeladi Pottery Shards", period:"6th Century BCE"},
+ {name:"Tamil Brahmi Inscription", period:"3rd Century BCE"},
+ {name:"Terracotta Figurines", period:"2nd Century BCE"}
+],
+"Sivagangai Palace Museum":[
+ {name:"Royal Maratha Sword", period:"17th Century"},
+ {name:"Palace Wall Paintings", period:"18th Century"},
+ {name:"Ivory Jewelry Box", period:"16th Century"}
+],
+
+// ===== Pudukkottai =====
+"Pudukkottai Government Museum":[
+ {name:"Thanjavur School of Painting", period:"12th Century", image:"static/images/pudukkottai_artifact.png"},
+ {name:"Artifact of Megalithic Period", period:"18th Century", image:"static/images/mega_pudukkottai.png"},
+ {name:"Metal-Ware Works", period:"Early", image:"static/images/pudukkottai_metals.png"},
+ {name:"Fishes ", period:"Early", image:"static/images/fishes.png"},
+ ],
+
+"Pudukkottai Fort Museum":[
+ {name:"Iron Cannon Balls", period:"18th Century"},
+ {name:"Fort Maps on Palm Leaf", period:"17th Century"},
+ {name:"War Shields", period:"16th Century"}
+],
+"Arulmigu Temple Museum":[
+ {name:"Temple Bronze Deepam", period:"12th Century"},
+ {name:"Stone Lingam Sculpture", period:"10th Century"},
+ {name:"Copper Temple Inscriptions", period:"11th Century"}
+],
+
+// ===== Chennai =====
+"Chennai Government Museum":[
+ {name:"Amaravati Sculptures", period:"2nd Century BCE"},
+ {name:"Bronze Buddha Statue", period:"11th Century"},
+ {name:"Egyptian Mummy", period:"2500 BCE"}
+],
+"Fort Museum Chennai":[
+ {name:"British Era Cannons", period:"1800"},
+ {name:"Colonial Maps", period:"1790"},
+ {name:"East India Company Coins", period:"1780"}
+],
+"MGR Film Museum":[
+ {name:"MGR Film Costumes", period:"1960"},
+ {name:"Original Film Posters", period:"1970"},
+ {name:"Vintage Movie Camera", period:"1955"}
+],
+
+// ===== Madurai =====
+"Madurai Gandhi Memorial Museum":[
+ {name:"Blood Stained Cloth of Gandhiji", period:"1948"},
+ {name:"Freedom Letters", period:"1920"},
+ {name:"Historic Protest Photos", period:"1930"}
+],
+"Thirumalai Nayak Museum":[
+ {name:"Stone Pillar Sculptures", period:"17th Century"},
+ {name:"Royal Murals", period:"18th Century"},
+ {name:"Bronze Palace Lamps", period:"16th Century"}
+],
+"Meenakshi Temple Museum":[
+ {name:"Golden Temple Jewelry", period:"15th Century"},
+ {name:"Stone Nandi Sculpture", period:"13th Century"},
+ {name:"Temple Ritual Vessels", period:"14th Century"}
+],
+
+// ===== Thanjavur =====
+"Thanjavur Royal Palace Museum":[
+ {name:"Chola Bronze Idols", period:"10th Century"},
+ {name:"Royal Throne Chair", period:"17th Century"},
+ {name:"Palm Manuscripts", period:"16th Century"}
+],
+"Thanjavur Art Gallery":[
+ {name:"Granite Nandi Statue", period:"11th Century"},
+ {name:"Bronze Dancing Shiva", period:"12th Century"},
+ {name:"Stone Carved Panels", period:"13th Century"}
+],
+"Thanjavur Saraswathi Mahal Museum":[
+ {name:"Rare Tamil Manuscripts", period:"1600"},
+ {name:"Ancient Maps Collection", period:"1700"},
+ {name:"Old Musical Instruments", period:"1650"}
+],
+
+// ===== Coimbatore =====
+"Coimbatore Gass Forest Museum":[
+ {name:"Elephant Skeleton", period:"Modern"},
+ {name:"Butterfly Collection", period:"20th Century"},
+ {name:"Rare Timber Samples", period:"Modern"}
+],
+"Kongu Museum":[
+ {name:"Kongu Bronze Tools", period:"9th Century"},
+ {name:"Ancient Farming Equipment", period:"12th Century"},
+ {name:"Tribal Ornaments", period:"14th Century"}
+],
+"Coimbatore Textile Museum":[
+ {name:"Handloom Weaving Machine", period:"1950"},
+ {name:"Traditional Cotton Sarees", period:"1900"},
+ {name:"Natural Dye Samples", period:"1850"}
+],
+
+// ===== Kanyakumari =====
+"Kanyakumari Gandhi Memorial Museum":[
+ {name:"Gandhi Urn Replica", period:"1948"},
+ {name:"Historic Salt March Photos", period:"1930"},
+ {name:"Personal Letters", period:"1940"}
+],
+"Padmanabhapuram Palace Museum":[
+ {name:"Royal Wooden Cot", period:"17th Century"},
+ {name:"Rosewood Wall Panels", period:"16th Century"},
+ {name:"Traditional Weapon Set", period:"18th Century"}
+],
+"Vattakottai Fort Museum":[
+ {name:"Sea Defense Cannons", period:"1800"},
+ {name:"Fort Stone Carvings", period:"1700"},
+ {name:"Naval Navigation Tools", period:"1750"}
+],
+
+// ===== Tirunelveli =====
+"Tirunelveli Nellaiappar Museum":[
+ {name:"Temple Bronze Bells", period:"12th Century"},
+ {name:"Stone Inscription Slabs", period:"10th Century"},
+ {name:"Copper Ritual Plates", period:"11th Century"}
+],
+"Tirunelveli Heritage Museum":[
+ {name:"Ancient Clay Pots", period:"8th Century"},
+ {name:"Village Jewelry Collection", period:"15th Century"},
+ {name:"Wooden Farming Tools", period:"14th Century"}
+],
+"Tirunelveli Fort Museum":[
+ {name:"Iron War Swords", period:"17th Century"},
+ {name:"Stone Cannon Mount", period:"18th Century"},
+ {name:"Old Military Maps", period:"1750"}
+],
+
+// ===== Salem =====
+"Salem Government Museum":[
+ {name:"Stone Hero Stones", period:"9th Century"},
+ {name:"Ancient Coins", period:"11th Century"},
+ {name:"Temple Sculptures", period:"10th Century"}
+],
+"Salem Art Gallery":[
+ {name:"Modern Oil Paintings", period:"1950"},
+ {name:"Stone Carved Statues", period:"12th Century"},
+ {name:"Bronze Lamps", period:"14th Century"}
+],
+"Salem Fort Museum":[
+ {name:"Fort Iron Cannons", period:"1700"},
+ {name:"Soldier Armor", period:"1650"},
+ {name:"Military Journals", period:"1800"}
+],
+
+// ===== Erode =====
+"Erode Textile Museum":[
+ {name:"Traditional Loom Machine", period:"1920"},
+ {name:"Handwoven Silk Sarees", period:"1900"},
+ {name:"Natural Dye Vessels", period:"1850"}
+],
+"Erode Archeology Museum":[
+ {name:"Stone Tools", period:"2000 BCE"},
+ {name:"Clay Burial Pots", period:"1000 BCE"},
+ {name:"Ancient Beads", period:"500 BCE"}
+],
+"Erode Science Museum":[
+ {name:"Early Microscope", period:"1950"},
+ {name:"Steam Engine Model", period:"1940"},
+ {name:"Physics Lab Instruments", period:"1960"}
+],
+
+// ===== Thoothukudi =====
+"Thoothukudi Maritime Museum":[
+ {name:"Pearl Diving Equipment", period:"19th Century"},
+ {name:"Ancient Ship Anchor Stone", period:"12th Century"},
+ {name:"Coral Trade Weights", period:"15th Century"}
+],
+"Thoothukudi Port Museum":[
+ {name:"British Port Ledger Books", period:"1890"},
+ {name:"Steam Crane Control Wheel", period:"1920"},
+ {name:"Harbor Signal Lantern", period:"1910"}
+],
+"Thoothukudi Local Heritage Museum":[
+ {name:"Salt Trade Measuring Pots", period:"18th Century"},
+ {name:"Palm Leaf Trade Records", period:"17th Century"},
+ {name:"Traditional Fishing Nets", period:"19th Century"}
+],
+
+// ===== Virudhunagar =====
+"Sivakasi Fireworks Museum":[
+ {name:"Handmade Matchbox Labels", period:"1940"},
+ {name:"Early Firecracker Moulds", period:"1935"},
+ {name:"Safety Testing Instruments", period:"1950"}
+],
+"Virudhunagar Heritage Museum":[
+ {name:"Cotton Trading Weights", period:"1900"},
+ {name:"Merchant Account Scrolls", period:"1850"},
+ {name:"Wooden Grain Storage Bins", period:"1800"}
+],
+"Virudhunagar Art Museum":[
+ {name:"Temple Mural Paintings", period:"1700"},
+ {name:"Bronze Festival Lamps", period:"1600"},
+ {name:"Traditional Wood Carvings", period:"1750"}
+],
+
+// ===== Tiruppur =====
+"Tiruppur Textile Museum":[
+ {name:"Early Power Loom Machine", period:"1975"},
+ {name:"Cotton Yarn Spinning Wheels", period:"1940"},
+ {name:"Natural Indigo Dye Vats", period:"1920"}
+],
+"Tiruppur Government Museum":[
+ {name:"Freedom Movement Posters", period:"1942"},
+ {name:"Old Municipal Records", period:"1930"},
+ {name:"Vintage Typewriters", period:"1955"}
+],
+"Tiruppur Art Museum":[
+ {name:"Handwoven Tapestry Art", period:"1980"},
+ {name:"Stone Relief Sculptures", period:"1600"},
+ {name:"Modern Textile Paintings", period:"2000"}
+],
+
+// ===== Tenkasi =====
+"Sankarankoil Government Museum":[
+ {name:"Temple Bronze Deepam", period:"12th Century"},
+ {name:"Stone Nandi Sculpture", period:"11th Century"},
+ {name:"Copper Donation Plates", period:"10th Century"}
+],
+"Tenkasi Fort Museum":[
+ {name:"Granite Cannon Base", period:"1700"},
+ {name:"Iron Battle Shields", period:"1650"},
+ {name:"Palm Leaf Military Maps", period:"1720"}
+],
+"Tenkasi Heritage Museum":[
+ {name:"Ancient Hill Tribe Jewelry", period:"1500"},
+ {name:"Traditional Herbal Medicine Tools", period:"1800"},
+ {name:"Clay Storage Jars", period:"1400"}
+],
+
+ // ===== THOOTHUKUDI =====
+ "Thoothukudi Maritime Museum":[
+  {name:"Pearl Oyster Diving Helmet", period:"19th Century"},
+  {name:"Tuticorin Harbor Stone Anchor", period:"12th Century"},
+  {name:"Coral Trade Weighing Balance", period:"15th Century"},
+  {name:"Portuguese Navigation Compass", period:"16th Century"}
+ ],
+
+ "Thoothukudi Port Museum":[
+  {name:"British Port Trust Log Register", period:"1895"},
+  {name:"Steam Cargo Winch Handle", period:"1925"},
+  {name:"Vintage Marine Signal Lantern", period:"1912"},
+  {name:"Iron Mooring Bollard Plate", period:"1908"}
+ ],
+
+ "Thoothukudi Local Heritage Museum":[
+  {name:"Traditional Salt Pan Wooden Rake", period:"18th Century"},
+  {name:"Palm Leaf Merchant Ledger", period:"17th Century"},
+  {name:"Country Fishing Catamaran Model", period:"19th Century"},
+  {name:"Hand-forged Iron Fish Hooks", period:"1800s"}
+ ],
+
+ // ===== VIRUDHUNAGAR =====
+ "Sivakasi Fireworks Museum":[
+  {name:"Handmade Matchbox Printing Blocks", period:"1940"},
+  {name:"Clay Firecracker Mould Plates", period:"1930"},
+  {name:"Early Safety Fuse Rolling Machine", period:"1955"},
+  {name:"Lithograph Fireworks Advertisement Sheets", period:"1948"}
+ ],
+
+ "Virudhunagar Heritage Museum":[
+  {name:"Nattukottai Chettiar Trade Weights", period:"1850"},
+  {name:"Palm Leaf Land Revenue Records", period:"1820"},
+  {name:"Wooden Bullock Cart Hub Wheel", period:"1800s"},
+  {name:"Bronze Temple Donation Box", period:"1700s"}
+ ],
+
+ "Virudhunagar Art Museum":[
+  {name:"Temple Ceiling Mural Fragment", period:"17th Century"},
+  {name:"Brass Oil Festival Lamp (Kuthu Vilakku)", period:"18th Century"},
+  {name:"Teak Wood Mythological Relief Panel", period:"1750"},
+  {name:"Traditional Tanjore Gold Foil Painting", period:"19th Century"}
+ ],
+
+ // ===== TIRUPPUR =====
+ "Tiruppur Textile Museum":[
+  {name:"Hattersley Shuttle Power Loom", period:"1972"},
+  {name:"Manual Cotton Carding Machine", period:"1945"},
+  {name:"Natural Indigo Dye Copper Vat", period:"1920"},
+  {name:"Ring Spinning Yarn Bobbin Set", period:"1960"}
+ ],
+
+ "Tiruppur Government Museum":[
+  {name:"Quit India Movement Handbill Poster", period:"1942"},
+  {name:"Colonial Era Municipality Minute Book", period:"1931"},
+  {name:"Remington Portable Typewriter", period:"1952"},
+  {name:"Early Police Wireless Receiver", period:"1965"}
+ ],
+
+ "Tiruppur Art Museum":[
+  {name:"Handloom Cotton Narrative Tapestry", period:"1985"},
+  {name:"Granite Temple Guardian Sculpture", period:"1600"},
+  {name:"Contemporary Textile Batik Painting", period:"2005"},
+  {name:"Terracotta Folk Horse Figurine", period:"1900"}
+ ],
+
+ // ===== TENKASI =====
+ "Sankarankoil Government Museum":[
+  {name:"Chola Bronze Deepalakshmi Lamp", period:"12th Century"},
+  {name:"Basalt Stone Nandi Idol", period:"11th Century"},
+  {name:"Copper Temple Endowment Plates", period:"10th Century"},
+  {name:"Granite Temple Bell Inscription Slab", period:"13th Century"}
+ ],
+
+ "Tenkasi Fort Museum":[
+  {name:"Granite Cannon Mounting Base", period:"1702"},
+  {name:"Maratha Iron War Shield", period:"1680"},
+  {name:"Palm Leaf Fort Survey Military Map", period:"1725"},
+  {name:"Bronze Signal Trumpet", period:"1690"}
+ ],
+
+ "Tenkasi Heritage Museum":[
+  {name:"Hill Tribe Silver Neck Torque", period:"1500"},
+  {name:"Traditional Siddha Herbal Grinding Stone", period:"1800"},
+  {name:"Large Blackware Storage Pot", period:"1400"},
+  {name:"Palm Leaf Astrology Manuscript", period:"1650"}
+ ],
+
+ // ===== VILLUPURAM =====
+"Villupuram Heritage Museum":[
+ {name:"Chola Granite Hero Stone", period:"11th Century"},
+ {name:"Temple Copper Donation Plates", period:"10th Century"},
+ {name:"Palm Leaf Revenue Scroll", period:"1700"},
+ {name:"Terracotta Storage Jar", period:"1400"}
+],
+
+"Villupuram Archaeology Museum":[
+ {name:"Black and Red Ware Pottery", period:"600 BCE"},
+ {name:"Iron Agricultural Sickle Blade", period:"300 BCE"},
+ {name:"Megalithic Burial Urn", period:"500 BCE"},
+ {name:"Tamil-Brahmi Inscribed Pottery", period:"200 BCE"}
+],
+
+"Villupuram Art Museum":[
+ {name:"Traditional Veeranam Landscape Painting", period:"1950"},
+ {name:"Stone Temple Bracket Sculpture", period:"14th Century"},
+ {name:"Bronze Oil Festival Lamp", period:"1700"},
+ {name:"Wooden Mythological Panel Carving", period:"1600"}
+],
+
+// ===== KANCHIPURAM =====
+"Kanchipuram Temple Museum":[
+ {name:"Pallava Granite Lion Capital", period:"8th Century"},
+ {name:"Temple Bronze Somaskanda Idol", period:"10th Century"},
+ {name:"Stone Inscription Slab of Narasimhavarman", period:"7th Century"},
+ {name:"Copper Temple Endowment Plate", period:"9th Century"}
+],
+
+"Kanchipuram Silk Museum":[
+ {name:"Jacquard Silk Weaving Loom", period:"1955"},
+ {name:"Natural Dye Indigo Vat Pot", period:"1900"},
+ {name:"Gold Zari Thread Spindle", period:"1920"},
+ {name:"Silk Pattern Punch Card Roll", period:"1960"}
+],
+
+"Kanchipuram Archeology Museum":[
+ {name:"Pallava Brick Temple Fragment", period:"650 CE"},
+ {name:"Stone Temple Door Jamb Relief", period:"750 CE"},
+ {name:"Copper Coin of Mahendravarman", period:"700 CE"},
+ {name:"Inscribed Granite Hero Stone", period:"900 CE"}
+],
+
+// ===== TIRUVARUR =====
+"Tiruvarur Saraswathi Mahal Museum":[
+ {name:"Palm Leaf Musical Treatise Manuscript", period:"1600"},
+ {name:"Veena String Peg Ivory Set", period:"1700"},
+ {name:"Maratha Court Account Copper Plates", period:"1750"},
+ {name:"Old Grantha Script Dictionary Scroll", period:"1650"}
+],
+
+"Tiruvarur Temple Museum":[
+ {name:"Bronze Somaskanda Idol", period:"11th Century"},
+ {name:"Stone Temple Bell Inscription", period:"12th Century"},
+ {name:"Ritual Silver Kavacham Plate", period:"1600"},
+ {name:"Temple Procession Wooden Chariot Panel", period:"1500"}
+],
+
+"Tiruvarur Art Museum":[
+ {name:"Traditional Devotional Tanjore Painting", period:"1850"},
+ {name:"Stone Nataraja Relief Panel", period:"1400"},
+ {name:"Wood Carved Temple Ceiling Panel", period:"1600"},
+ {name:"Brass Ritual Water Pot (Kumbha)", period:"1700"}
+],
+
+// ===== NAMAKKAL =====
+"Namakkal Rock Fort Museum":[
+ {name:"Stone Cannon Ball", period:"1700"},
+ {name:"Granite Fort Watch Post Inscription Slab", period:"1680"},
+ {name:"Iron Arrowhead Collection", period:"1650"},
+ {name:"Palm Leaf Military Survey Map", period:"1720"}
+],
+
+"Namakkal Anjaneya Museum":[
+ {name:"Temple Bronze Hanuman Idol", period:"12th Century"},
+ {name:"Stone Temple Bell", period:"14th Century"},
+ {name:"Ritual Copper Abhishekam Vessel", period:"1600"},
+ {name:"Inscribed Temple Donation Plate", period:"1500"}
+],
+
+"Namakkal Heritage Museum":[
+ {name:"Traditional Stone Oil Press (Chekku)", period:"1800"},
+ {name:"Bullock Cart Wooden Axle", period:"1750"},
+ {name:"Handloom Cotton Spindle", period:"1850"},
+ {name:"Brass Household Storage Vessel", period:"1700"}
+],
+
+// ===== THIRUVANNAMALAI =====
+"Thiruvannamalai Arunachaleswarar Museum":[
+ {name:"Chola Bronze Somaskanda Idol", period:"11th Century"},
+ {name:"Stone Deepastambha Lamp Capital", period:"12th Century"},
+ {name:"Copper Temple Grant Plate", period:"10th Century"},
+ {name:"Granite Temple Inscription Slab", period:"9th Century"}
+],
+
+"Thiruvannamalai Heritage Museum":[
+ {name:"Stone Jain Tirthankara Relief Panel", period:"8th Century"},
+ {name:"Iron Agricultural Plough Blade", period:"1400"},
+ {name:"Palm Leaf Siddha Medicine Manuscript", period:"1650"},
+ {name:"Terracotta Storage Vessel", period:"1200"}
+],
+
+"Thiruvannamalai Art Museum":[
+ {name:"Natural Pigment Temple Mural Fragment", period:"1600"},
+ {name:"Granite Veerakkal Hero Stone", period:"1000"},
+ {name:"Bronze Ritual Oil Lamp", period:"1750"},
+ {name:"Wooden Floral Ceiling Panel", period:"1500"}
+],
+
+// ===== NAGAPATTINAM =====
+"Nagapattinam Chola Museum":[
+ {name:"Chola Bronze Nataraja Idol", period:"10th Century"},
+ {name:"Copper Trade Guild Inscription Plate", period:"11th Century"},
+ {name:"Granite Temple Guardian Sculpture", period:"9th Century"},
+ {name:"Gold Fanam Coin of Rajaraja Chola", period:"1010 CE"}
+],
+
+"Nagapattinam Maritime Museum":[
+ {name:"Stone Ship Anchor", period:"1200"},
+ {name:"Arab Trade Ceramic Bowl Fragment", period:"1300"},
+ {name:"Navigation Astrolabe Replica", period:"1500"},
+ {name:"Bronze Harbor Signal Bell", period:"1700"}
+],
+
+"Nagapattinam Art Museum":[
+ {name:"Traditional Coastal Landscape Painting", period:"1950"},
+ {name:"Bronze Temple Procession Lamp", period:"1650"},
+ {name:"Wood Carved Boat Figurehead", period:"1800"},
+ {name:"Stone Decorative Pillar Capital", period:"1400"}
+],
+
+// ===== KALLAKURICHI =====
+"Kallakurichi Government Museum":[
+ {name:"Iron Age Burial Urn", period:"1000 BCE"},
+ {name:"Stone Grinding Quern", period:"800 BCE"},
+ {name:"Black Polished Ware Pottery", period:"300 BCE"},
+ {name:"Terracotta Bead Necklace", period:"500 BCE"}
+],
+
+"Kallakurichi Art Gallery":[
+ {name:"Traditional Village Festival Painting", period:"1980"},
+ {name:"Granite Temple Relief Sculpture", period:"1500"},
+ {name:"Bronze Hanging Oil Lamp", period:"1700"},
+ {name:"Wooden Mask Folk Dance Prop", period:"1900"}
+],
+
+"Kallakurichi Archeology Museum":[
+ {name:"Megalithic Stone Cist Cover Slab", period:"900 BCE"},
+ {name:"Iron Spearhead Blade", period:"700 BCE"},
+ {name:"Inscribed Pottery Sherd", period:"300 BCE"},
+ {name:"Terracotta Toy Cart Wheel", period:"500 BCE"}
+],
+
+// ===== PERAMBALUR =====
+"Perambalur Government Museum":[
+ {name:"Stone Temple Door Guardian Sculpture", period:"12th Century"},
+ {name:"Iron Agricultural Axe Head", period:"1400"},
+ {name:"Copper Temple Donation Plate", period:"1100"},
+ {name:"Blackware Storage Pot", period:"900"}
+],
+
+"Perambalur Temple Museum":[
+ {name:"Bronze Bhairava Idol", period:"11th Century"},
+ {name:"Stone Nandi Sculpture", period:"10th Century"},
+ {name:"Silver Temple Ritual Plate", period:"1600"},
+ {name:"Wooden Temple Chariot Miniature Model", period:"1700"}
+],
+
+"Perambalur Heritage Museum":[
+ {name:"Handloom Cotton Spinning Wheel", period:"1800"},
+ {name:"Palm Leaf Marriage Record Scroll", period:"1750"},
+ {name:"Brass Household Water Pot", period:"1650"},
+ {name:"Wooden Grain Measuring Vessel", period:"1700"}
+],
+
+// ===== DHARMAPURI =====
+"Dharmapuri Fort Museum":[
+ {name:"Iron Cannon Ball", period:"1700"},
+ {name:"Stone Fort Watch Inscription Slab", period:"1680"},
+ {name:"Steel Sword Blade Fragment", period:"1650"},
+ {name:"Bronze Signal Trumpet", period:"1690"}
+],
+
+"Dharmapuri Archeology Museum":[
+ {name:"Neolithic Stone Axe Head", period:"2000 BCE"},
+ {name:"Megalithic Burial Pot", period:"1000 BCE"},
+ {name:"Iron Agricultural Knife Blade", period:"500 BCE"},
+ {name:"Black-and-Red Ware Bowl", period:"300 BCE"}
+],
+
+"Dharmapuri Cultural Museum":[
+ {name:"Traditional Lambadi Silver Anklet", period:"1800"},
+ {name:"Handwoven Wool Blanket", period:"1900"},
+ {name:"Wooden Tribal Drum", period:"1850"},
+ {name:"Painted Earthen Storage Pot", period:"1750"}
+],
+
+// ===== KARUR =====
+"Karur Government Museum":[
+ {name:"Roman Gold Coin of Emperor Augustus", period:"20 BCE"},
+ {name:"Tamil-Brahmi Inscription Stone", period:"200 BCE"},
+ {name:"Terracotta Spindle Whorl", period:"300 BCE"},
+ {name:"Iron Trade Weight Cube", period:"100 BCE"}
+],
+
+"Karur Textile Museum":[
+ {name:"Manual Handloom Frame", period:"1920"},
+ {name:"Natural Dye Indigo Grinding Stone", period:"1900"},
+ {name:"Wooden Yarn Reeling Wheel", period:"1880"},
+ {name:"Cotton Bale Press Plate", period:"1940"}
+],
+
+"Karur Fort Museum":[
+ {name:"Granite Fort Cannon Mount Base", period:"1700"},
+ {name:"Iron Shield Boss Plate", period:"1650"},
+ {name:"Palm Leaf Military Muster Roll", period:"1720"},
+ {name:"Bronze War Signal Bell", period:"1680"}
+],
+
+// ===== PUDUCHERRY =====
+"Puducherry Museum":[
+ {name:"Chola Bronze Nataraja Idol", period:"11th Century"},
+ {name:"French East India Company Silver Coin", period:"1740"},
+ {name:"Arikamedu Roman Amphora Fragment", period:"1st Century CE"},
+ {name:"Granite Pallava Temple Sculpture", period:"8th Century"}
+],
+
+"Puducherry Heritage Museum":[
+ {name:"Colonial Teak Wood Writing Desk", period:"1820"},
+ {name:"Handwritten French Administrative Ledger", period:"1790"},
+ {name:"Vintage Brass Oil Lantern", period:"1850"},
+ {name:"Ceramic Floor Tile Panel", period:"1800"}
+],
+
+"Puducherry Art Museum":[
+ {name:"French Oil Landscape Painting", period:"1880"},
+ {name:"Terracotta Auroville Studio Sculpture", period:"1995"},
+ {name:"Wood Carved Colonial Balcony Panel", period:"1850"},
+ {name:"Bronze Abstract Modern Sculpture", period:"2005"}
+],
+
+// ===== THENI =====
+"Theni Government Museum":[
+ {name:"Stone Jain Tirthankara Idol", period:"9th Century"},
+ {name:"Copper Temple Endowment Plate", period:"11th Century"},
+ {name:"Iron Agricultural Ploughshare", period:"1400"},
+ {name:"Palm Leaf Herbal Medicine Manuscript", period:"1700"}
+],
+
+"Theni Heritage Museum":[
+ {name:"Traditional Honey Collection Basket", period:"1800"},
+ {name:"Wooden Hill Tribe Hunting Bow", period:"1750"},
+ {name:"Stone Grain Grinding Mortar", period:"1600"},
+ {name:"Handwoven Bamboo Storage Basket", period:"1850"}
+],
+
+"Theni Art Museum":[
+ {name:"Natural Pigment Mountain Landscape Painting", period:"1970"},
+ {name:"Bronze Tribal Dance Mask", period:"1850"},
+ {name:"Wooden Folk Story Relief Panel", period:"1800"},
+ {name:"Terracotta Ritual Horse Figurine", period:"1900"}
+],
+
+// ===== CUDDALORE =====
+"Cuddalore Government Museum":[
+ {name:"Chola Copper Coin Hoard", period:"11th Century"},
+ {name:"Stone Temple Inscription Slab", period:"10th Century"},
+ {name:"Iron Agricultural Sickle Blade", period:"1500"},
+ {name:"Terracotta Storage Vessel", period:"1200"}
+],
+
+"Cuddalore Art Museum":[
+ {name:"Coastal Village Watercolour Painting", period:"1960"},
+ {name:"Bronze Temple Hanging Lamp", period:"1700"},
+ {name:"Wood Carved Temple Procession Panel", period:"1650"},
+ {name:"Stone Decorative Floral Bracket", period:"1400"}
+],
+
+"Cuddalore Heritage Museum":[
+ {name:"Dutch Colonial Trade Weight", period:"1750"},
+ {name:"Palm Leaf Shipping Record Scroll", period:"1720"},
+ {name:"Vintage Brass Ship Lantern", period:"1800"},
+ {name:"Ceramic Roof Tile Stamp Panel", period:"1850"}
+]
+
+
+};
+
+/* ===================== PAGE LOGIC ===================== */
+
+const params = new URLSearchParams(window.location.search);
+const museum = params.get("museum");
+document.getElementById("title").innerText = museum + " - Original Artifacts";
+
+const container = document.getElementById("artifacts");
+
+if(artifactData[museum]){
+ artifactData[museum].forEach(a=>{
+  const imgTag = a.image ? `<img src="${a.image}" alt="${a.name}">` : '';
+  container.innerHTML += `
+   <div class="card">
+    ${imgTag}
+    <h3>${a.name}</h3>
+    <p><b>Period:</b> ${a.period}</p>
+   </div>
+  `;
+ });
+}else{
+ container.innerHTML = "<h3>⚠️ Artifacts data not available.</h3>";
+}
+
+function goBack(){
+ window.location.href="/home";
+}
+</script>
+
+</body>
+</html>

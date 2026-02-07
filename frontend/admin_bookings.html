@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Admin Ticket Bookings</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎫</text></svg>" />
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #eef2ff;
+    margin:0;
+    padding:0;
+}
+
+header {
+    background: linear-gradient(to right, #7b6cff, #b497ff);
+    color:white;
+    text-align:center;
+    padding:20px;
+    font-size:24px;
+    font-weight:bold;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+/* ✅ BUTTON GROUP */
+.nav-group{
+    position:absolute;
+    top:12px;
+    right:15px;
+    display:flex;
+    gap:10px;
+}
+
+.nav-btn{
+    padding:8px 14px;
+    background:#4B0082;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.nav-btn:hover{
+    background:#7a00cc;
+}
+
+.logout{
+    background:#ff4d6d;
+}
+
+.logout:hover{
+    background:#ff1f4c;
+}
+
+.table-container {
+    width:90%;
+    margin:20px auto;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.1);
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #ccc;
+    font-size: 14px;
+}
+
+th {
+    background:#7b6cff;
+    color:white;
+    text-transform:uppercase;
+}
+
+tr:hover {
+    background:#f0f0ff;
+}
+
+.status {
+    padding:6px 12px;
+    border-radius:6px;
+    color:white;
+    font-weight:bold;
+}
+
+.pending { background:#f0ad4e; }
+.confirmed { background:#5cb85c; }
+.cancelled { background:#d9534f; }
+
+button {
+    padding:6px 12px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.confirm-btn {
+    background:#5cb85c;
+    color:white;
+    margin-right:5px;
+}
+
+.cancel-btn {
+    background:#d9534f;
+    color:white;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    header { font-size: 18px; padding: 12px; }
+    table { font-size: 12px; }
+    table th, table td { padding: 8px; }
+    button { padding: 8px 12px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    header { font-size: 16px; padding: 8px; }
+    .nav-group { top: 8px; right: 8px; gap: 5px; }
+    .table-container { width: 100%; margin: 12px 0; border-radius: 0; }
+    table { font-size: 11px; min-width: 600px; }
+    table th, table td { padding: 5px 8px; white-space: nowrap; }
+    button { padding: 6px 10px; font-size: 11px; }
+    .btn-group { flex-direction: column; gap: 4px; }
+    .logout { display: none; }
+    body { overflow-x: hidden; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    🎫 Admin Ticket Bookings
+
+    <div class="nav-group">
+        <button class="nav-btn" onclick="goBack()">🏠 Back</button>
+        <button class="nav-btn" onclick="goVerify()">🔍 Verify</button>
+        <button class="nav-btn logout" onclick="logout()">🚪 Logout</button>
+    </div>
+</header>
+
+<div class="table-container">
+<table id="bookingsTable">
+<thead>
+<tr>
+<th>Visitor Name</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Museum</th>
+<th>Date</th>
+<th>Time</th>
+<th>Tickets</th>
+<th>Status</th>
+<th>Booked On</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+let bookings = [];
+
+
+// Hide logout buttons on small screens
+(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+/* Fetch bookings */
+function fetchBookings(){
+    fetch('/api/bookings')
+        .then(response => response.json())
+        .then(data => {
+            bookings = data.bookings || [];
+            renderTable();
+        })
+        .catch(error => {
+            console.log("Error fetching bookings:", error);
+            bookings = [];
+            renderTable();
+        });
+}
+
+/* Render table */
+function renderTable(){
+    const tbody = document.querySelector("#bookingsTable tbody");
+    tbody.innerHTML = "";
+
+    if(bookings.length === 0){
+        tbody.innerHTML = "<tr><td colspan='10' style='text-align:center; padding:20px;'>No bookings yet</td></tr>";
+        return;
+    }
+
+    bookings.forEach((b)=>{
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${b.user}</td>
+            <td>${b.email}</td>
+            <td>${b.phone}</td>
+            <td>${b.museum}</td>
+            <td>${b.date}</td>
+            <td>${b.time}</td>
+            <td>${b.tickets}</td>
+            <td>
+                <span class="status ${b.status}">
+                ${b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                </span>
+            </td>
+            <td>${b.bookingDate}</td>
+            <td>
+                ${
+                    b.status === "pending"
+                    ? `
+                        <button class="confirm-btn" onclick="updateStatus(${b.id}, 'confirmed')">Confirm</button>
+                        <button class="cancel-btn" onclick="updateStatus(${b.id}, 'cancelled')">Cancel</button>
+                      `
+                    : `
+                        <button class="confirm-btn" onclick="updateStatus(${b.id}, 'pending')">Reopen</button>
+                      `
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* Update booking */
+function updateStatus(id, status){
+    fetch('/api/update-booking', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: id, status: status})
+    })
+    .then(response => response.json())
+    .then(data => fetchBookings())
+    .catch(error => console.log("Error:", error));
+}
+
+/* Navigation */
+function goBack(){
+    window.location.href = "/admin";
+}
+
+function goVerify(){
+    window.location.href = "/verify";
+}
+
+function logout(){
+    window.location.href = "/logout";
+}
+
+fetchBookings();
+setInterval(fetchBookings, 3000);
+</script>
+
+</body>
+</html>

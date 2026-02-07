@@ -1,0 +1,228 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<title>Museum Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    height:100vh;
+    overflow:hidden;
+}
+
+/* Background container */
+.login-bg {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Slideshow images */
+.bg-slide {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-size: cover;
+    background-position: center;
+    opacity:0;
+    transition: opacity 1.5s ease-in-out;
+    z-index:-1;
+}
+
+.bg-slide.active {
+    opacity:1;
+}
+
+/* Login box */
+.login-box {
+    position: relative;
+    background: rgba(0,0,0,0.75);
+    padding:35px;
+    width:330px;
+    border-radius:14px;
+    color: lavender;
+    box-shadow: 0 0 25px rgba(186,85,211,0.7);
+    margin:auto;
+    top:50%;
+    transform: translateY(-50%);
+    text-align:center;
+}
+
+.login-box h2 {
+    margin-bottom:20px;
+    color: #e6ccff;
+}
+
+.login-box input {
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:6px;
+    outline:none;
+}
+
+/* Password eye icon */
+.password-box {
+    position: relative;
+}
+
+.password-box i {
+    position:absolute;
+    right:12px;
+    top:14px;
+    color:black;
+    cursor:pointer;
+}
+
+/* Button */
+button {
+    width:100%;
+    padding:12px;
+    background: linear-gradient(to right, #b266ff, #7a00cc);
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+    color:white;
+}
+
+button:hover {
+    opacity:0.9;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    .login-box {
+        width: calc(94% - 40px) !important;
+        padding: 20px !important;
+        margin: 15px auto !important;
+    }
+    
+    h1 {
+        font-size: 22px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .or {
+        font-size: 13px;
+    }
+    
+    button {
+        font-size: 14px;
+        padding: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .login-box {
+        width: calc(100% - 20px) !important;
+        padding: 15px !important;
+        margin: 10px auto !important;
+        border-radius: 10px;
+    }
+    
+    h1 {
+        font-size: 18px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    label {
+        font-size: 12px;
+    }
+    
+    .login-box input {
+        padding: 10px;
+        margin: 8px 0;
+        font-size: 16px;
+    }
+    
+    button {
+        padding: 12px !important;
+        font-size: 13px;
+        margin-top: 10px;
+    }
+    
+    .or {
+        font-size: 12px;
+        margin: 12px 0;
+    }
+    
+    .social-login {
+        gap: 8px;
+    }
+    
+    .social-btn {
+        padding: 8px !important;
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-bg">
+
+    <!-- ✅ JPEG slideshow images -->
+    <div class="bg-slide active" style="background-image: url('/static/images/slide1.jpeg');"></div>
+    <div class="bg-slide" style="background-image: url('/static/images/slide2.jpeg');"></div>
+    <div class="bg-slide" style="background-image: url('/static/images/slide3.jpeg');"></div>
+
+    <div class="login-box">
+        <h2>🏛️ Museum Login</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category != 'success' %}
+                        <div class="alert alert-{{ category }}" style="padding: 10px; margin-bottom: 10px; border-radius: 6px;">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login">
+            <input type="email" name="email" placeholder="Email" required>
+            <div class="password-box">
+                <input type="password" name="password" id="password" placeholder="Password" required>
+                <i class="fa fa-eye" onclick="togglePassword()"></i>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function togglePassword(){
+    let pwd = document.getElementById("password");
+    pwd.type = pwd.type === "password" ? "text" : "password";
+}
+
+/* ✅ Background slideshow */
+let slides = document.querySelectorAll('.bg-slide');
+let current = 0;
+
+setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+}, 4000);   // 4 seconds change
+</script>
+
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Admin Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>📊</text></svg>" />
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#f4f2ff,#ededf5);
+    min-height:100vh;
+}
+
+/* Header */
+header{
+    background: linear-gradient(to right, #7b6cff, #b497ff);
+    color:white;
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+    position:relative;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+
+.nav-btn{
+    position:absolute;
+    top:15px;
+    padding:8px 16px;
+    background:#4b0082;
+    color:white;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.back-btn{ left:15px; }
+.logout-btn{ right:15px; }
+
+.nav-btn:hover{
+    background:#6a0dad;
+}
+
+/* Container */
+.container{
+    width:92%;
+    margin:30px auto;
+}
+
+/* Stats grid */
+.stats{
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+}
+
+/* Card */
+.stat-card{
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.12);
+    text-align:center;
+    transition:0.3s;
+}
+
+.stat-card:hover{
+    transform: translateY(-6px);
+}
+
+.stat-icon{
+    font-size:42px;
+}
+
+.stat-title{
+    font-size:16px;
+    margin-top:10px;
+    color:#666;
+}
+
+.stat-value{
+    font-size:34px;
+    font-weight:bold;
+    margin-top:5px;
+    color:#4b0082;
+}
+
+/* Activity */
+.activity{
+    margin-top:40px;
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.12);
+}
+
+.activity h3{
+    margin-top:0;
+    color:#4b0082;
+}
+
+.activity ul{
+    list-style:none;
+    padding:0;
+}
+
+.activity li{
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+.activity li:last-child{
+    border-bottom:none;
+}
+
+/* Feedback Section */
+.feedback{
+    margin-top:40px;
+    background:white;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.12);
+}
+
+.feedback h3{
+    margin-top:0;
+    color:#4b0082;
+}
+
+.feedback-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap:20px;
+}
+
+.feedback-card{
+    background:#f9f7ff;
+    border-left:4px solid #7b6cff;
+    border-radius:8px;
+    padding:16px;
+    font-size:13px;
+}
+
+.feedback-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.feedback-museum{
+    font-weight:bold;
+    color:#4b0082;
+}
+
+.feedback-rating{
+    color:#ffc107;
+    font-size:14px;
+}
+
+.feedback-user{
+    color:#999;
+    font-size:12px;
+    margin-bottom:8px;
+}
+
+.feedback-comment{
+    color:#666;
+    line-height:1.5;
+    font-style:italic;
+}
+
+.no-feedback{
+    color:#999;
+    text-align:center;
+    padding:20px;
+}
+
+/* 📱 Mobile responsive design */
+@media (max-width: 768px) {
+    header { font-size: 18px; padding: 12px; }
+    .dashboard-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card { padding: 12px; }
+    .stat-value { font-size: 18px; }
+    .stat-label { font-size: 12px; }
+    button { padding: 8px 12px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    header { font-size: 16px; padding: 8px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .nav-btn { position: static; top: auto; right: auto; left: auto; display: none; margin: 6px 6px; }
+    .dashboard-grid { grid-template-columns: 1fr; gap: 8px; }
+    .stats { gap: 12px; }
+    .stat-card { padding: 10px; margin: 6px 0; }
+    .stat-value { font-size: 16px; }
+    .stat-label { font-size: 11px; }
+    button { padding: 6px 10px; font-size: 11px; }
+    .home-link { padding: 6px 10px; font-size: 12px; }
+    .container { width: 96%; margin: 12px auto; }
+    .feedback-grid { grid-template-columns: 1fr; }
+    .feedback-card, .stat-card, .activity, .no-feedback { word-break: break-word; max-width: 100%; }
+    body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    📊 Admin Dashboard
+    <button class="nav-btn back-btn" onclick="goBack()">⬅ Back</button>
+    <button class="nav-btn logout-btn" onclick="logout()">🚪 Logout</button>
+</header>
+
+<div class="container">
+
+<!-- Stats -->
+<div class="stats">
+
+    <div class="stat-card">
+        <div class="stat-icon">🎫</div>
+        <div class="stat-title">Total Bookings</div>
+        <div class="stat-value" id="totalBookings">0</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-title">Registered Users</div>
+        <div class="stat-value" id="totalUsers">0</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🏛️</div>
+        <div class="stat-title">Museums</div>
+        <div class="stat-value" id="totalMuseums">0</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-title">Today's Bookings</div>
+        <div class="stat-value" id="todayBookings">0</div>
+    </div>
+
+</div>
+
+<!-- Activity -->
+<div class="activity">
+    <h3>🕒 Recent Activity</h3>
+    <ul id="activityList">
+        <li>Loading activity...</li>
+    </ul>
+</div>
+
+<!-- Feedback -->
+<div class="feedback">
+    <h3>💬 User Feedback <button onclick="loadAllFeedback()" style="float:right; padding:6px 12px; background:#7b6cff; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">🔄 Refresh</button></h3>
+    <div class="feedback-grid" id="feedbackGrid">
+        <div class="no-feedback">Loading feedback...</div>
+    </div>
+</div>
+
+</div>
+
+<script src="/museums_data.js"></script>
+
+<script>
+let dashboardData = {
+    totalBookings: 128,
+    
+    totalUsers: 54,
+    totalMuseums: 64,
+    todayBookings: 9,
+    activities: [
+        "New booking from Ravi - Chennai Museum",
+        "User Priya registered",
+        "Booking confirmed - Delhi Museum",
+        "New booking from Arjun - Hyderabad Museum"
+    ]
+};
+
+// Hide logout buttons on small screens
+(function(){
+    const sel = '.logout, .logout-btn, .nav-btn.logout, .nav-btn.logout-btn';
+    function update(){
+        const hide = window.innerWidth <= 480;
+        document.querySelectorAll(sel).forEach(el=> el.style.display = hide ? 'none' : '');
+    }
+    update();
+    window.addEventListener('resize', update);
+})();
+
+function goBack(){
+    window.location.href = "/admin";
+}
+
+function logout(){
+    window.location.href = "/logout";
+}
+
+async function loadAllFeedback(){
+    try {
+        const feedbackGrid = document.getElementById("feedbackGrid");
+        feedbackGrid.innerHTML = "<div class='no-feedback'>Loading feedback...</div>";
+        
+        // Get all museums from client-side data
+        let museums = [];
+        if(window.MUSEUMS && Array.isArray(window.MUSEUMS)){
+            museums = window.MUSEUMS;
+            console.log("Loaded " + museums.length + " museums from client data");
+        }
+        
+        // If no client-side museums, use a hardcoded list of popular museums
+        if(museums.length === 0){
+            console.log("Using hardcoded museums list");
+            museums = [
+                {name: "Vallal Alagappar Museum"},
+                {name: "Keeladi Heritage Museum"},
+                {name: "Sivagangai Palace Museum"},
+                {name: "Pudukkottai Government Museum"},
+                {name: "Chennai Government Museum"},
+                {name: "Madurai Gandhi Memorial Museum"},
+                {name: "Thanjavur Royal Palace Museum"},
+                {name: "Coimbatore Gass Forest Museum"},
+                {name: "Kanyakumari Gandhi Memorial Museum"},
+                {name: "Tirunelveli Nellaiappar Museum"},
+                {name: "Salem Government Museum"},
+                {name: "Erode Textile Museum"},
+                {name: "Vellore Government Museum"},
+                {name: "Thoothukudi Maritime Museum"},
+                {name: "Villupuram Heritage Museum"},
+                {name: "Kanchipuram Temple Museum"},
+                {name: "Tiruvarur Temple Museum"},
+                {name: "Namakkal Rock Fort Museum"},
+                {name: "Thiruvannamalai Arunachaleswarar Museum"}
+            ];
+        }
+        
+        let allFeedbacks = [];
+        let feedbackFound = false;
+        
+        // Fetch feedback for each museum
+        for(const museum of museums){
+            try {
+                const museumName = museum.name || museum;
+                const res = await fetch('/api/feedback?museum=' + encodeURIComponent(museumName));
+                if(res.ok){
+                    const data = await res.json();
+                    if(data.feedbacks && data.feedbacks.length > 0){
+                        feedbackFound = true;
+                        allFeedbacks.push({
+                            museum: museumName,
+                            feedbacks: data.feedbacks,
+                            average: data.average,
+                            count: data.count
+                        });
+                    }
+                }
+            } catch(e) {
+                console.error("Error fetching feedback for museum", e);
+            }
+        }
+        
+        feedbackGrid.innerHTML = "";
+        
+        if(allFeedbacks.length === 0){
+            feedbackGrid.innerHTML = "<div class='no-feedback'>No feedback yet. Users can leave feedback on individual museum pages.</div>";
+            return;
+        }
+        
+        // Sort by most recent and display feedback cards
+        allFeedbacks.forEach(item => {
+            // Show most recent feedbacks first
+            const recentFeedbacks = item.feedbacks.sort((a, b) => {
+                const dateA = new Date(a.submitted_at);
+                const dateB = new Date(b.submitted_at);
+                return dateB - dateA;
+            }).slice(0, 5);
+            
+            recentFeedbacks.forEach(feedback => {
+                const card = document.createElement("div");
+                card.className = "feedback-card";
+                const stars = '★'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
+                const userDisplay = feedback.user_email || 'Guest User';
+                const dateDisplay = feedback.submitted_at ? new Date(feedback.submitted_at).toLocaleDateString() : 'Recently';
+                
+                card.innerHTML = `
+                    <div class="feedback-header">
+                        <span class="feedback-museum">${item.museum}</span>
+                        <span class="feedback-rating">${stars}</span>
+                    </div>
+                    <div class="feedback-user">👤 ${userDisplay}</div>
+                    <div class="feedback-comment">"${feedback.comments || 'No comment'}"</div>
+                    <div class="feedback-user">${dateDisplay}</div>
+                `;
+                feedbackGrid.appendChild(card);
+            });
+        });
+        
+    } catch(error){
+        console.error("Error loading feedback:", error);
+        document.getElementById("feedbackGrid").innerHTML = "<div class='no-feedback'>⚠️ Error loading feedback. Please try again.</div>";
+    }
+}
+
+/* Fetch real data from backend */
+async function loadDashboard(){
+    try{
+        // Fetch users data
+        const usersResponse = await fetch('/api/users', {credentials: 'include'});
+        if(!usersResponse.ok) {
+            window.location.href = '/login';
+            return;
+        }
+        const usersData = await usersResponse.json();
+        const users = usersData.users || [];
+        document.getElementById("totalUsers").innerText = users.length;
+
+        // Fetch bookings data
+        const bookingsResponse = await fetch('/api/bookings', {credentials: 'include'});
+        if(bookingsResponse.ok){
+            const bookingsData = await bookingsResponse.json();
+            const bookings = bookingsData.bookings || [];
+            document.getElementById("totalBookings").innerText = bookings.length;
+
+            // Count today's bookings
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = bookings.filter(b => {
+                return b.bookingDate === today;
+            }).length;
+            document.getElementById("todayBookings").innerText = todayCount;
+
+            // Display recent bookings as activity
+            const list = document.getElementById("activityList");
+            list.innerHTML = "";
+            if(bookings.length === 0){
+                list.innerHTML = "<li>📭 No bookings yet</li>";
+            } else {
+                bookings.slice(0, 5).forEach(b => {
+                    const li = document.createElement("li");
+                    li.innerText = "✔ " + b.user + " booked " + b.museum + " - Status: " + b.status;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        // Fetch museums count
+        const museumsResponse = await fetch('/api/museums', {credentials: 'include'});
+        if(museumsResponse.ok){
+            const museumsData = await museumsResponse.json();
+            document.getElementById("totalMuseums").innerText = museumsData.count;
+        } else {
+            // Fallback to client-side data if available
+            if(window.MUSEUMS && Array.isArray(window.MUSEUMS)){
+                document.getElementById("totalMuseums").innerText = window.MUSEUMS.length;
+            } else {
+                document.getElementById("totalMuseums").innerText = "0";
+            }
+        }
+
+        // Load feedback with a small delay to ensure museums_data.js is loaded
+        setTimeout(loadAllFeedback, 500);
+
+    } catch(error){
+        console.error("Error loading dashboard:", error);
+        const list = document.getElementById("activityList");
+        list.innerHTML = "<li>⚠️ Error loading activity</li>";
+    }
+}
+
+// Wait for DOM to be ready and museums_data to load
+document.addEventListener('DOMContentLoaded', function(){
+    // Give extra time for museums_data.js to load
+    setTimeout(loadDashboard, 800);
+});
+</script>
+
+</body>
+</html>
