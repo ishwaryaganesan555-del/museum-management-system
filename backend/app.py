@@ -108,24 +108,59 @@ def admin_required(f):
 db = None
 cursor = None
 
+# Allow Railway / other hosts to provide MYSQL_* or DATABASE_URL
+try:
+    # If Railway provides MYSQL_HOST / MYSQL_USER etc, map them to DB_* env vars
+    if not os.getenv('DB_HOST') and os.getenv('MYSQL_HOST'):
+        os.environ.setdefault('DB_HOST', os.getenv('MYSQL_HOST'))
+    if not os.getenv('DB_USER') and os.getenv('MYSQL_USER'):
+        os.environ.setdefault('DB_USER', os.getenv('MYSQL_USER'))
+    if not os.getenv('DB_PASSWORD') and os.getenv('MYSQL_PASSWORD'):
+        os.environ.setdefault('DB_PASSWORD', os.getenv('MYSQL_PASSWORD'))
+    if not os.getenv('DB_NAME') and os.getenv('MYSQL_DATABASE'):
+        os.environ.setdefault('DB_NAME', os.getenv('MYSQL_DATABASE'))
+
+    # If a DATABASE_URL is present (common pattern), attempt a simple parse
+    # Format: mysql://user:pass@host:port/dbname
+    db_url = os.getenv('DATABASE_URL') or os.getenv('MYSQLCONNSTR_LOCAL')
+    if db_url and not os.getenv('DB_HOST'):
+        try:
+            import re
+            m = re.match(r"mysql:\/\/(?P<user>[^:]+):(?P<pw>[^@]+)@(?P<host>[^:\/]+)(:(?P<port>\d+))?\/(?P<db>[\w-]+)", db_url)
+            if m:
+                os.environ.setdefault('DB_HOST', m.group('host'))
+                os.environ.setdefault('DB_USER', m.group('user'))
+                os.environ.setdefault('DB_PASSWORD', m.group('pw'))
+                os.environ.setdefault('DB_NAME', m.group('db'))
+        except Exception:
+            pass
+except Exception:
+    pass
+
 def get_db():
     global db, cursor
     if db is None:
         try:
+            # Use MYSQL_* if available (Railway), fallback to DB_*
+            db_host = os.getenv("MYSQL_HOST") or os.getenv("DB_HOST", "localhost")
+            db_user = os.getenv("MYSQL_USER") or os.getenv("DB_USER", "root")
+            db_password = os.getenv("MYSQL_PASSWORD") or os.getenv("DB_PASSWORD", "Ishwarya@123")
+            db_name = os.getenv("MYSQL_DATABASE") or os.getenv("DB_NAME", "museum_db")
+            
             db = pymysql.connect(
-                host=os.getenv("DB_HOST", "localhost"),
-                user=os.getenv("DB_USER", "root"),
-                password=os.getenv("DB_PASSWORD", "Ishwarya@123"),
-                database=os.getenv("DB_NAME", "museum_db")
+                host=db_host,
+                user=db_user,
+                password=db_password,
+                database=db_name
             )
             cursor = db.cursor()
         except Exception as e:
             print(f"[WARNING] Database connection failed: {e}")
             print(f"[INFO] Configure database via environment variables:")
-            print(f"      DB_HOST={os.getenv('DB_HOST', 'not set')}")
-            print(f"      DB_USER={os.getenv('DB_USER', 'not set')}")
-            print(f"      DB_PASSWORD=***")
-            print(f"      DB_NAME={os.getenv('DB_NAME', 'not set')}")
+            print(f"      MYSQL_HOST={os.getenv('MYSQL_HOST', 'not set')} / DB_HOST={os.getenv('DB_HOST', 'not set')}")
+            print(f"      MYSQL_USER={os.getenv('MYSQL_USER', 'not set')} / DB_USER={os.getenv('DB_USER', 'not set')}")
+            print(f"      MYSQL_PASSWORD=*** / DB_PASSWORD=***")
+            print(f"      MYSQL_DATABASE={os.getenv('MYSQL_DATABASE', 'not set')} / DB_NAME={os.getenv('DB_NAME', 'not set')}")
             db = None
             cursor = None
     return db, cursor
