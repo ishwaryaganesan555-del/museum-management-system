@@ -82,6 +82,11 @@ app = Flask(
 app.secret_key = os.getenv("SECRET_KEY", "dev_key")
 app.permanent_session_lifetime = timedelta(hours=24)
 
+# Verify environment variables
+print(f"✅ FLASK_ENV: {os.getenv('FLASK_ENV', 'not set')}")
+print(f"✅ SECRET_KEY: {'***' if os.getenv('SECRET_KEY') else 'using default (dev_key)'}")
+print(f"✅ DATABASE_URL: {'***' if os.getenv('DATABASE_URL') else 'not set'}")
+
 # Login required decorator
 def login_required(f):
     @wraps(f)
