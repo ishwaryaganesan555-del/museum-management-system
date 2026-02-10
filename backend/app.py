@@ -79,7 +79,7 @@ app = Flask(
     static_folder=os.path.join(os.path.dirname(__file__), "../frontend/static"),
     static_url_path="/static"
 )
-app.secret_key = "super_secret_key"
+app.secret_key = os.getenv("SECRET_KEY", "dev_key")
 app.permanent_session_lifetime = timedelta(hours=24)
 
 # Login required decorator
